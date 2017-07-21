@@ -8,27 +8,18 @@
 # your.email <- "email@address.com"
 # library(downloader)
 # setwd( "C:/My Directory/ESS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/European%20Social%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/European%20Social%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # daniel oberski
 # daniel.oberski@gmail.com
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ############################################################################
@@ -146,7 +137,7 @@ for ( curDownload in downloads ){
 	current.year <- substr( spss.file , nchar( spss.file ) - 3 , nchar( spss.file ) )
 
 	# write the current file to the temporary file on your local disk
-	writeBin( content( current.file , "raw" ) , tf )
+	writeBin( content( current.file ) , tf )
 
 	# unzip the temporary file to the temporary directory
 	spss.files <- unzip( tf , exdir = td )
@@ -215,7 +206,7 @@ for ( curDownload in downloads ){
 		fn <- paste0( "./" , current.year , '/docs/' , basename( cur.pdf ) )
 			
 		# save the pdf to the local disk
-		writeBin( content( current.pdf , "raw" ) , fn )
+		writeBin( content( current.pdf ) , fn )
 		
 	}
 	
@@ -269,7 +260,7 @@ for ( curDownload in downloads ){
 		current.file <- GET( dfp )
 		
 		# save the downloaded file to the temporary file location
-		writeBin( content( current.file , "raw" ) , tf )
+		writeBin( content( current.file ) , tf )
 
 		# unzip the temporary file into the temporary directory,
 		# and store all local filepaths into the object `spss.files`
@@ -357,17 +348,3 @@ for ( curDownload in downloads ){
 # remove all contents of the temporary directory
 unlink( td , recursive = TRUE )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -7,31 +7,22 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NPS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20of%20OAA%20Participants/replication.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20of%20OAA%20Participants/replication.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
 
 ############################################################
 # this script matches every statistic and standard error pulled from agidnet at:
-# https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20of%20OAA%20Participants/agidnet%202003%20caregiver%20-%20respite%20care.png
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20of%20OAA%20Participants/agidnet%202003%20caregiver%20-%20respite%20care.png
 # and
-# https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20of%20OAA%20Participants/agidnet%202012%20home%20delivered%20meals%20-%20past%20year%20hospital%20and%20nursing%20home.png
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20of%20OAA%20Participants/agidnet%202012%20home%20delivered%20meals%20-%20past%20year%20hospital%20and%20nursing%20home.png
 ############################################################
 
 
@@ -40,7 +31,7 @@
 # prior to running this analysis script, the 2003 caregiver and 2012 home delivered meals files must be loaded onto the #
 # local machine.  running the download all microdata script below will import all of the files that are needed.         #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20of%20OAA%20Participants/download%20all%20microdata.R #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20of%20OAA%20Participants/download%20all%20microdata.R #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will files in the C:/My Directory/NPS directory or wherever the working directory was set.                #
 #########################################################################################################################
@@ -65,7 +56,7 @@ library(survey)		# load survey package (analyzes complex design surveys)
 
 # # # # # # # # # # # # # # # # # # # # # # #
 # precisely match the 2003 caregiver output #
-# https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20of%20OAA%20Participants/agidnet%202003%20caregiver%20-%20respite%20care.png
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20of%20OAA%20Participants/agidnet%202003%20caregiver%20-%20respite%20care.png
 
 # load the 2003 caregiver file into working memory
 load( "./2003/caregiver.rda" )
@@ -114,7 +105,7 @@ gc()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # precisely match the 2012 home delivered meals output  #
-# https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20of%20OAA%20Participants/agidnet%202012%20home%20delivered%20meals%20-%20past%20year%20hospital%20and%20nursing%20home.png
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20of%20OAA%20Participants/agidnet%202012%20home%20delivered%20meals%20-%20past%20year%20hospital%20and%20nursing%20home.png
 
 # load the 2012 home delivered meals file into working memory
 load( "./2012/home delivered meals.rda" )
@@ -167,17 +158,3 @@ gc()
 #########################################
 # end of agidnet statistics replication #
 #########################################
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -8,24 +8,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/HPSA/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Health%20Professional%20Shortage%20Areas/identify%20point-in-time%20geographic%20hpsas.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Health%20Professional%20Shortage%20Areas/identify%20point-in-time%20geographic%20hpsas.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -33,7 +24,7 @@
 # prior to running this analysis script, the most current primary care physician health professional shortage area file must  #
 # be loaded on the local machine. running the download current hpsa table script will create an r data file (.rda) with this. #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Health%20Professional%20Shortage%20Areas/download%20current%20hpsa%20table.R  #
+# https://github.com/ajdamico/asdfree/blob/master/Health%20Professional%20Shortage%20Areas/download%20current%20hpsa%20table.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will create "HPSA_PC.rda" in C:/My Directory/HPSA or wherever the working directory was set for the program     #
 ###############################################################################################################################
@@ -172,7 +163,7 @@ table( x$type.description )
 
 # remove hpsa records that are *points* (like health centers, clinics, correctional facilities, etc)
 # and keep only geographic areas
-x <- x[ x$type.description %in% c( 'Single County' , 'Geographical Area' , 'Population Group' ) , ]
+x <- x[ x$type.description %in% c( 'Hpsa Geographic' , 'Hpsa Geographic High Needs' , 'Hpsa Population' ) , ]
 
 # re-print the current count of records by state
 table( x$type.description )
@@ -189,7 +180,7 @@ throw.out.pop.group.hpsas.please <- FALSE
 if ( throw.out.pop.group.hpsas.please ){
 
 	# only keep single county and geographical area hpsa types
-	x <- x[ x$type.description %in% c( 'Single County' , 'Geographical Area' ) , ]
+	x <- x[ x$type.description %in% c( 'Hpsa Geographic' , 'Hpsa Geographic High Needs' ) , ]
 
 # ..otherwise, it's a bit more work.  and also imperfect.
 } else {
@@ -251,7 +242,7 @@ if ( throw.out.pop.group.hpsas.please ){
 
 		
 	# identify the records in `x` that are population groups
-	pg.recs <- ( x$type.description == 'Population Group' )
+	pg.recs <- ( x$type.description == 'Hpsa Population' )
 
 	# create new TRUE/FALSE variables for each 
 	x[ pg.recs , 'spanish' ] <- pop.group.id( spanish.text.matches , x[ pg.recs , 'name' ] )
@@ -274,7 +265,7 @@ if ( throw.out.pop.group.hpsas.please ){
 		subset( 
 			x , 
 			!spanish & !poverty & !li & !medicaid & !indigent & !amerind & !migrant & !inmate & !homeless & !mental & 
-			type.description == 'Population Group' 
+			type.description == 'Hpsa Population' 
 		)
 	
 	# ..here's the first six
@@ -387,17 +378,3 @@ save( county , ctract , mcd , file = 'geographic hpsa.rda' )
 # in the future, these three data tables can be re-loaded by setting the same working directory and then..
 # load( 'geographic hpsa.rda' )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

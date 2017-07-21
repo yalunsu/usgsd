@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/AHS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/American%20Housing%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/American%20Housing%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ##############################################
@@ -44,7 +35,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "RSQLite" , "RCurl" , "sas7bdat" , "downloader" , "stringr" ) )
+# install.packages( c( "RSQLite" , "RCurl" , "sas7bdat" , "downloader" , "digest" , "stringr" ) )
 
 
 # name the database (.db) file to be saved in the working directory
@@ -71,10 +62,10 @@ library(RCurl)		# load RCurl package (downloads https files)
 library(stringr) 	# load stringr package (manipulates character strings easily)
 
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
@@ -87,17 +78,50 @@ tf <- tempfile() ; td <- tempdir()
 # open the connection to the sqlite database
 db <- dbConnect( SQLite() , ahs.dbname )
 
+
+# figure out available ahs years
+
 # hard-code the location of the census bureau's all ahs data page
 download.file( "http://www.census.gov/programs-surveys/ahs/data.All.html" , tf , mode = 'wb' )
 
 # split up the page into separate lines
 http.contents <- readLines( tf )
 
-# isolate all puf lines
-puf.lines <- grep( "href(.*)Public Use" , http.contents , value = TRUE )
+# look for four-digit years in html filenames
+available_years <- 
+	gsub( 
+		"(.*)>(.*)<(.*)" , 
+		"\\2" , 
+		grep( "http://www.census.gov/programs-surveys/ahs/data.([0-9][0-9][0-9][0-9]).html" , http.contents , value = TRUE )
+	)
 
-# extract only the link
-puf.pages <- gsub('(.*)href=\"(.*)\" title(.*)' , '\\2' , puf.lines )
+
+# record each of the public use file pages
+puf.pages <- NULL
+
+for( year in available_years ){
+
+	download.file( paste0( "http://www.census.gov/programs-surveys/ahs/data." , year , ".html" ) , tf , mode = 'wb' )
+
+	# isolate all puf lines
+	puf.lines <- gsub('(.*)href=\"(.*)\" title(.*)' , '\\2' , grep( "href(.*)Public Use" , readLines( tf ) , value = TRUE ) )
+
+	# starting in 2013, public use file pages are broken into two
+	if( year >= 2013 ){
+		
+		download.file( paste0( "http://www.census.gov/" , puf.lines ) , tf , mode = 'wb' )
+		
+		these_lines <- gsub('(.*)href=\"(.*)\" title(.*)' , '\\2' , grep( "href(.*)Public Use" , readLines( tf ) , value = TRUE ) )
+		
+		these_lines <- these_lines[ !grepl( "mailto" , these_lines ) ] 
+		
+	} else these_lines <- puf.lines
+	
+	# extract only the link
+	puf.pages <- unique( c( puf.pages , these_lines ) )
+	
+}
+
 
 # start with an empty vector..
 precise.files <- NULL
@@ -109,11 +133,7 @@ for ( this.page in puf.pages ){
 	
 	zipped.file.lines <- this.contents[ grep( "\\.zip" , tolower( this.contents ) ) ]
 
-	precise.files <-
-		c( 
-			precise.files ,
-			gsub( "(.*)downloadLink: '(.*)' }, collect(.*)" , "\\2" , zipped.file.lines )
-		)
+	precise.files <- unique( c( precise.files , gsub( '\"(.*)' , "" , gsub( '(.*)href=\"' , "" , zipped.file.lines ) ) ) )
 	
 }
 
@@ -147,8 +167,12 @@ precise.files <- precise.files[ !grepl( 'flat' , tolower( precise.files ) ) ]
 
 # remove the 2011 sas file, there's a similiar (though differently named) csv file
 precise.files <-
-	precise.files[ precise.files != 'http://www2.census.gov/AHS/AHS_2011/AHS_2011_PUF_v1.4_SAS.zip' ]
+	precise.files[ precise.files != "http://www2.census.gov/programs-surveys/ahs/2011/AHS_2011_PUF_v1.4_SAS.zip" ]
 
+# remove the 1983 sas file, which isn't there.
+precise.files <-
+	precise.files[ precise.files != 'http://www2.census.gov/programs-surveys/ahs/1983/AHS_1983/AHS_1983_Metro_PUF_SAS.zip' ]
+	
 # remove duplicates
 precise.files <- unique( precise.files )
 	
@@ -188,11 +212,11 @@ for ( fn in precise.files ){
 	tf <- tempfile() 
 	
 	# download the exact file to the local disk
-	attempt.one <- try( download.cache( fn , tf , mode = 'wb' ) , silent = TRUE )
+	attempt.one <- try( download_cached( fn , tf , mode = 'wb' ) , silent = TRUE )
 	
 	if( class( attempt.one ) == 'try-error' ){
 		Sys.sleep( 60 )
-		download.cache( fn , tf , mode = 'wb' , fun = download )
+		download_cached( fn , tf , mode = 'wb' , fun = download )
 	}
 	
 	# import files from largest to smallest
@@ -246,7 +270,7 @@ for ( fn in precise.files ){
 	
 			# re-try the download, this time forcing a download
 			# (just in case the cache'd file was incomplete or corrupted)
-			download.cache( fn , tf , mode = 'wb' , usecache = FALSE )
+			download_cached( fn , tf , mode = 'wb' , usecache = FALSE )
 			
 			# unzip it once again
 			tf <- unzip( tf , exdir = td )
@@ -663,17 +687,3 @@ unlink( td , recursive = TRUE )
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste0( "all done.  you should set the file " , getwd() , " read-only so you don't accidentally alter these tables." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

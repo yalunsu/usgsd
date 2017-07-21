@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/PIRLS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Progress%20in%20International%20Reading%20Literacy%20Study/download%20import%20and%20design.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Progress%20in%20International%20Reading%20Literacy%20Study/download%20import%20and%20design.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -65,16 +56,16 @@ library(haven) 				# load the haven package (imports dta files faaaaaast)
 # should calculate their variances by using the average of the replicates.
 options( "survey.replicates.mse" = TRUE )
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
 
 # load two pirls-specific replicate weighted survey design construction functions.
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Progress%20in%20International%20Reading%20Literacy%20Study/design%20functions.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Progress%20in%20International%20Reading%20Literacy%20Study/design%20functions.R" , prompt = FALSE )
 
 
 # # # # # # # # # # # #
@@ -109,7 +100,7 @@ for ( i in ftd ){
 	dir.create( this.year , showWarnings = FALSE )
 	
 	# download the damn file
-	download.cache( i , tf , mode = 'wb' )
+	download_cached( i , tf , mode = 'wb' )
 	
 	# unzip the damn file
 	z <- unzip( tf , exdir = tempdir() )
@@ -149,7 +140,7 @@ for ( this.year in years ){
 			x <- read_spss( this.file )
 			
 			# coerce the file into a data.frame object
-			x <- as.data.frame.matrix( x )
+			x <- as.data.frame( x )
 			
 			# stack it
 			y <- rbind( y , x )
@@ -245,17 +236,3 @@ for ( this.year in years ){
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste0( "all done.  you should set the directory " , getwd() , " read-only so you don't accidentally alter these tables." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -7,32 +7,23 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/AddHealth/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/replicate%20unc%20puf.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/replicate%20unc%20puf.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 # note that the university of north carolina's carolina population center only publishes standard error examples
 # using the restricted access data files (shown here):
 # http://www.cpc.unc.edu/projects/addhealth/data/guides/wt-guidelines.pdf#page=18
 # so to confirm that the methodology below is correct, i asked the folks at unc..
-# https://github.com/ajdamico/usgsd/blob/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/Gmail%20-%20precisely%20replicating%20a%20SE%20statistic%20with%20AddHealth.pdf?raw=true
+# https://github.com/ajdamico/asdfree/blob/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/Gmail%20-%20precisely%20replicating%20a%20SE%20statistic%20with%20AddHealth.pdf?raw=true
 # ..to provided me some example stata output run on the public use file (puf).  they did.  radical.
-# https://github.com/ajdamico/usgsd/blob/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/Stata_example.txt
+# https://github.com/ajdamico/asdfree/blob/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/Stata_example.txt
 # this r script will replicate the statistics from that custom run of the national longitudinal study of adolescent health (addhealth) exactly
 
 
@@ -42,7 +33,7 @@
 # prior to running this replication script, at least wave 1 of the addhealth public use microdata files must be loaded as R data          #
 # files (.rda) on the local machine. running the "download and consolidate.R" script will create these files.                             #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/download%20and%20consolidate.R
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/download%20and%20consolidate.R
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will save a number of .rda files in C:/My Directory/AddHealth/ (or the working directory chosen)                            #
 ###########################################################################################################################################
@@ -211,10 +202,10 @@ y <-
 ################################################################
 
 # email from unc carolina population center
-# https://github.com/ajdamico/usgsd/blob/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/Gmail%20-%20precisely%20replicating%20a%20SE%20statistic%20with%20AddHealth.pdf?raw=true
+# https://github.com/ajdamico/asdfree/blob/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/Gmail%20-%20precisely%20replicating%20a%20SE%20statistic%20with%20AddHealth.pdf?raw=true
 
 # stata code (and output) from unc carolina population center
-# https://github.com/ajdamico/usgsd/blob/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/Stata_example.txt
+# https://github.com/ajdamico/asdfree/blob/master/National%20Longitudinal%20Study%20of%20Adolescent%20to%20Adult%20Health/Stata_example.txt
 
 
 # time spent watching tv #
@@ -266,17 +257,3 @@ summary( svyglm( ah_pvt ~ w1age + boy + h1da8 , y ) )
 # end of printing the exact contents of the unc document to the screen #
 ########################################################################
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

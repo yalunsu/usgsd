@@ -7,27 +7,18 @@
 # options( encoding = "windows-1252" )		# # only macintosh and *nix users need this line
 # library(downloader)
 # setwd( "C:/My Directory/PNADC/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios%20Continua/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios%20Continua/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # djalma pessoa
 # pessoad@gmail.com
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ###########################################################################
@@ -73,10 +64,10 @@ library(downloader)	# downloads and then runs the source() function on scripts f
 library(RCurl)		# load RCurl package (downloads https files)
 
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
@@ -86,16 +77,16 @@ source_url(
 tf <- tempfile() ; td <- tempdir()
 
 # designate the position of the input file
-input.fullname <- "ftp://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/Documentacao/Dicionario_e_input.zip"
+input.fullname <- "ftp://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/Documentacao/Dicionario_e_input_20170518.zip"
 
 # download the input file immediately
-download.cache( input.fullname , tf , mode = 'wb' )
+download_cached( input.fullname , tf , mode = 'wb' )
 
 # unzip its contents on the local disk
 z <- unzip( tf , exdir = td )
 
 # identify and store the sas file
-sasfile <- grep( "\\.sas$" , z , value = TRUE )
+sasfiles <- grep( "\\.sas$" , z , value = TRUE )
 
 # initiate the full ftp path
 year.ftp <- "ftp://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/"
@@ -128,9 +119,25 @@ for ( this.year in year.lines ){
 # loop through the `zip.filenames` character vector..
 for ( i in seq_along( zip.filenames ) ){
 
-	quarter <- gsub( "(.*)PNADC_([0-9][0-9])([0-9][0-9][0-9][0-9])\\.(zip|ZIP)" , "\\2" , zip.filenames[ i ] )
-	year <- gsub( "(.*)PNADC_([0-9][0-9])([0-9][0-9][0-9][0-9])\\.(zip|ZIP)" , "\\3" , zip.filenames[ i ] )
+	quarter <- gsub( "(.*)PNADC_([0-9][0-9])([0-9][0-9][0-9][0-9])(.*)\\.(zip|ZIP)" , "\\2" , zip.filenames[ i ] )
+	year <- gsub( "(.*)PNADC_([0-9][0-9])([0-9][0-9][0-9][0-9])(.*)\\.(zip|ZIP)" , "\\3" , zip.filenames[ i ] )
 
+	# if the year is 2012-2014 or 2015Q1-Q3, use the first sas import file..
+	if( year < 2015 | ( year < 2016 & quarter < 4 ) ) {
+	
+		sasfile <- grep( "1Tri_2012 a 3Tri_2015" , sasfiles , value = TRUE ) 
+	
+	# if 2015Q4 or 2016Q1, use the second
+	} else if( (year == 2015 & quarter == '04') | (year == 2016 & quarter == '01') ) {
+		
+		sasfile <- grep( "4Tri_2015 a 1Tri_2016" , sasfiles , value = TRUE )
+		
+	# if 2016Q2, use the third
+	} else {
+	
+		sasfile <- grep( "2Tri_2016", sasfiles , value = TRUE)
+	
+	}	
 	# construct the full ftp path to the current zipped file
 	current.zipfile <-
 		paste0(
@@ -142,7 +149,7 @@ for ( i in seq_along( zip.filenames ) ){
 	
 
 	# try to download the zipped file..
-	attempt.one <- try( download.cache( current.zipfile , tf , mode = 'wb' ) , silent = TRUE )
+	attempt.one <- try( download_cached( current.zipfile , tf , mode = 'wb' ) , silent = TRUE )
 	
 	# ..but if the first attempt fails,
 	# wait for three minutes and try again.
@@ -150,7 +157,7 @@ for ( i in seq_along( zip.filenames ) ){
 
 		Sys.sleep( 180 )
 		
-		download.cache( current.zipfile , tf , mode = 'wb' )
+		download_cached( current.zipfile , tf , mode = 'wb' )
 		
 	}
 
@@ -195,17 +202,3 @@ unlink( td , recursive = TRUE )
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste0( "all done.  you should set the file " , getwd() , " read-only so you don't accidentally alter these tables." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

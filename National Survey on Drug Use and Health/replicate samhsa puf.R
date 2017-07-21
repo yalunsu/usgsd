@@ -8,7 +8,7 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NSDUH/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20on%20Drug%20Use%20and%20Health/replicate%20samhsa%20puf.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20on%20Drug%20Use%20and%20Health/replicate%20samhsa%20puf.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
@@ -21,23 +21,14 @@
 
 
 # to confirm that the methodology below is correct, analysts at samhsa provided me with the same tables generated using the public use file (puf)
-# https://github.com/ajdamico/usgsd/blob/master/National%20Survey%20on%20Drug%20Use%20and%20Health/NSDUH%20PUF_Table_1.19B_D%20from%20SAMHSA.pdf?raw=true
+# https://github.com/ajdamico/asdfree/blob/master/National%20Survey%20on%20Drug%20Use%20and%20Health/NSDUH%20PUF_Table_1.19B_D%20from%20SAMHSA.pdf?raw=true
 # this r script will replicate each of the statistics from that custom run of the national survey on drug use and health (nsduh) exactly
 
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -45,7 +36,7 @@
 # prior to running this replication script, all nsduh 2011 public use microdata files must be loaded as R data                                  #
 # files (.rda) on the local machine. running the "1979-2010 - download all microdata.R" script will create these files.                         #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/National%20Survey%20on%20Drug%20Use%20and%20Health/1979-2010%20-%20download%20all%20microdata.R #
+# https://github.com/ajdamico/asdfree/blob/master/National%20Survey%20on%20Drug%20Use%20and%20Health/1979-2010%20-%20download%20all%20microdata.R #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will save a number of .rda files in C:/My Directory/NSDUH/2010/ (or the working directory chosen)                                 #
 #################################################################################################################################################
@@ -198,7 +189,7 @@ y <-
 # print the exact contents of the samhsa document to the screen #
 #################################################################
 
-# https://github.com/ajdamico/usgsd/blob/master/National%20Survey%20on%20Drug%20Use%20and%20Health/NSDUH%20PUF_Table_1.19B_D%20from%20SAMHSA.pdf?raw=true #
+# https://github.com/ajdamico/asdfree/blob/master/National%20Survey%20on%20Drug%20Use%20and%20Health/NSDUH%20PUF_Table_1.19B_D%20from%20SAMHSA.pdf?raw=true #
 
 
 # unweighted counts #
@@ -255,17 +246,3 @@ svyby( ~summon, ~newrace2 , y , svymean )		# percent with illicit drug use in pa
 # end of printing the exact contents of the samhsa document to the screen #
 ###########################################################################
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

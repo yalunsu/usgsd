@@ -9,24 +9,15 @@
 # your.password <- "password"
 # library(downloader)
 # setwd( "C:/My Directory/SEER/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Surveillance%20Epidemiology%20and%20End%20Results/download.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Surveillance%20Epidemiology%20and%20End%20Results/download.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ###########################################################
@@ -73,7 +64,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( "downloader" )
+# install.packages( "downloader" , "digest" )
 
 # no need to edit anything below this line #
 
@@ -86,12 +77,25 @@
 library(downloader)		# downloads and then runs the source() function on scripts from github
 
 
+# this script's download files should be incorporated in download_cached's hash list
+options( "download_cached.hashwarn" = TRUE )
+# warn the user if the hash does not yet exist
+
+# load the download_cached and related functions
+# to prevent re-downloading of files once they've been downloaded.
+source_url( 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
+	prompt = FALSE , 
+	echo = FALSE 
+)
+
+
 # create a temporary file on your local disk
 tf <- tempfile()
 
 
 # find the seerstat page containing the link to the latest zipped file
-ssp <- readLines( "http://seer.cancer.gov/data/options.html" )
+ssp <- readLines( "https://seer.cancer.gov/data/options.html" )
 
 
 # find the latest filepath
@@ -120,7 +124,7 @@ seer.url <-
 
 	
 # download the zipped file to the temporary file
-download( seer.url , tf )
+download_cached( seer.url , tf , FUN = download )
 
 # unzip it into your current working directory
 unzip( tf )
@@ -128,17 +132,3 @@ unzip( tf )
 # remove the temporary file from your local disk
 file.remove( tf )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

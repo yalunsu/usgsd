@@ -8,24 +8,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/ANES/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/American%20National%20Election%20Studies/analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/American%20National%20Election%20Studies/analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -34,7 +25,7 @@
 # prior to running this replication script, all anes public use microdata files must be loaded as R data            #
 # files (.rda) on the local machine. running the "download and import.R" script will create these files.            #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/American%20National%20Election%20Studies/download%20and%20import.R  #
+# https://github.com/ajdamico/asdfree/blob/master/American%20National%20Election%20Studies/download%20and%20import.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will save a number of .rda files in C:/My Directory/ANES/ (or the working directory was chosen)       #
 #####################################################################################################################
@@ -73,7 +64,7 @@ library(survey)  # load survey package (analyzes complex design surveys)
 # this setting matches the MISSUNIT option in SUDAAN
 
 # load the 2012 time series file
-load( "./2012 Time Series Study/anes_timeseries_2012.rda" )
+load( "./anes_timeseries_2012/anes_timeseries_2012.rda" )
 
 # display the number of rows in the merged data set
 nrow( x )
@@ -370,17 +361,3 @@ barplot(
 	las = 2										# rotate the labels so they're vertical
 )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

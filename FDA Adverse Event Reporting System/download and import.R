@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/FAERS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/FDA%20Adverse%20Event%20Reporting%20System/download%20and%20import.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/FDA%20Adverse%20Event%20Reporting%20System/download%20and%20import.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ##############################################################################
@@ -44,7 +35,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "downloader" , "XML" ) )
+# install.packages( c( "downloader" , "digest" , "XML" ) )
 
 
 ############################################
@@ -59,10 +50,10 @@ library(XML)		# load XML (parses through html code to extract links)
 library(downloader)	# downloads and then runs the source() function on scripts from github
 
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url(
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" ,
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" ,
 	prompt = FALSE ,
 	echo = FALSE
 )
@@ -120,10 +111,17 @@ for ( f.l in c( "faers" , "legacy" ) ){
 	ascii.names <- link.names[ names.with.ascii ]
 
 	# extract the four-digit year from the remaining filenames
-	ascii.years <- gsub( "(.*)ASCII_([0-9]*)q(.*)" , "\\2" , ascii.names )
+	ascii.years <- gsub( "(.*)ASCII ([0-9]*)q(.*)" , "\\2" , ascii.names )
+	ascii.years <- gsub( "(.*)ASCII_([0-9]*)q(.*)" , "\\2" , ascii.years )
+	ascii.years <- gsub( "(.*)ASCII ([0-9]*) Q(.*)" , "\\2" , ascii.years )
+	ascii.years <- gsub( "(.*)ASCII_([0-9]*) Q(.*)" , "\\2" , ascii.years )
+	ascii.years <- gsub( "(.*)ASCII_([0-9]*)Q(.*)" , "\\2" , ascii.years )
 
 	# extract the one-digit quarter from the remaining filenames
 	ascii.quarter <- gsub( "(.*)([0-9]*)q([0-9])(.*)" , "\\3" , ascii.names )
+	ascii.quarter <- gsub( "(.*)([0-9]*)Q([0-9])(.*)" , "\\3" , ascii.quarter )
+	ascii.quarter <- gsub( "(.*)([0-9]*) q([0-9])(.*)" , "\\3" , ascii.quarter )
+	ascii.quarter <- gsub( "(.*)([0-9]*) Q([0-9])(.*)" , "\\3" , ascii.quarter )
 
 	# confirm all years are 2004 or later
 	stopifnot( ascii.years %in% 2004:3000 )
@@ -141,7 +139,7 @@ for ( f.l in c( "faers" , "legacy" ) ){
 		fn <- paste0( "downloads/" , fp , '.zip' )
 	
 		# attempt to download the current link, save it within the `downloads` folder
-		download.cache( 
+		download_cached( 
 			paste0( "http://www.fda.gov" , ascii.links[[ i ]] ) , 
 			fn
 		)
@@ -282,17 +280,3 @@ for ( i in text.files ){
 
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste( "all done.  you should set" , getwd() , "read-only so you don't accidentally alter these files." ) )
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

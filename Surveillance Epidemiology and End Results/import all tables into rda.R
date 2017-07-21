@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/SEER/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Surveillance%20Epidemiology%20and%20End%20Results/import%20all%20tables%20into%20rda.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Surveillance%20Epidemiology%20and%20End%20Results/import%20all%20tables%20into%20rda.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ################################################
@@ -37,9 +28,9 @@
 ###############################################################################################################
 # prior to running this importation script, the seer text file must be loaded on the local machine with:      #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Surveillance%20Epidemiology%20and%20End%20Results/download.R  #
+# https://github.com/ajdamico/asdfree/blob/master/Surveillance%20Epidemiology%20and%20End%20Results/download.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# that script will create a 'SEER_1973_2011_TEXTDATA' directory in C:/My Directory/SEER (or the cw directory) #
+# that script will create a 'SEER_1973_2013_TEXTDATA' directory in C:/My Directory/SEER (or the cw directory) #
 ###############################################################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -76,7 +67,7 @@ library(SAScii) 		# load the SAScii package (imports ascii data with a SAS scrip
 # first, look in the downloaded zipped file's main directory,
 # and store a character vector `all.files` containing the filepaths
 # to each of the files inside that directory
-all.files <- list.files( "./SEER_1973_2011_TEXTDATA" , full.names = TRUE , recursive = TRUE )
+all.files <- list.files( "./SEER_1973_2013_TEXTDATA" , full.names = TRUE , recursive = TRUE )
 
 # create a character vector matching the different cancer file name identifiers
 words.to.match <- c( "BREAST" , "COLRECT" , "DIGOTHR" , "FEMGEN" , "LYMYLEUK" , "MALEGEN" , "RESPIR" , "URINARY" , "OTHER" )
@@ -101,7 +92,7 @@ words.to.match <- c( "BREAST" , "COLRECT" , "DIGOTHR" , "FEMGEN" , "LYMYLEUK" , 
 edited.sas.instructions <- tempfile()
 
 # read the sas importation script into memory
-z <- readLines( "./SEER_1973_2011_TEXTDATA/incidence/read.seer.research.nov13.sas" )
+z <- readLines( grep( "\\.sas$" , list.files( recursive = TRUE ) , value = TRUE ) )
 
 # get rid of the first through fourth lines (the -1:-4 part)
 # and at the same time get rid of the word `char` (the gsub part)
@@ -139,7 +130,7 @@ for ( fp in ind.file.matches ){
 	# and converting the file location to lowercase
 	sfl <- 
 		gsub( 
-			"seer_1973_2011_textdata/" , 
+			"SEER_1973_2013_TEXTDATA/" , 
 			"" , 
 			gsub(
 				".txt" ,
@@ -228,7 +219,7 @@ for ( fp in pop.file.matches ){
 	# and converting the file location to lowercase
 	sfl <- 
 		gsub( 
-			"seer_1973_2011_textdata/" , 
+			"SEER_1973_2013_TEXTDATA/" , 
 			"" , 
 			gsub(
 				".txt" ,
@@ -268,17 +259,3 @@ for ( fp in pop.file.matches ){
 # end of population-level file importation  #
 # # # # # # # # # # # # # # # # # # # # # # #
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

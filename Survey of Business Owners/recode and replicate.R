@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/SBO/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Survey%20of%20Business%20Owners/recode%20and%20replicate.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Survey%20of%20Business%20Owners/recode%20and%20replicate.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -34,7 +25,7 @@
 # prior to running this analysis script, the sbo 2007 file must be loaded as a database (.db) on the      #
 # local machine.  running the 2007 download all microdata script will create this database file.          #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/Survey%20of%20Business%20Owners/download%20and%20import.R  #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/Survey%20of%20Business%20Owners/download%20and%20import.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will create a file "sbo07.db" with 'y' in C:/My Directory/SBO or wherever you put it.       #
 ###########################################################################################################
@@ -43,9 +34,9 @@
 
 #############################################################################################################################################
 # this script matches the results of the SAS code sent to me by the superstar Annie Leung at the united states census bureau.  thanx a zil. #
-# email: https://github.com/ajdamico/usgsd/blob/master/Survey%20of%20Business%20Owners/census%20emails%20regarding%20SBO%20PUMS.pdf         #
-#   csv: https://github.com/ajdamico/usgsd/blob/master/Survey%20of%20Business%20Owners/PUMS_MIN_FINAL.CSV                                   #
-#  code: https://github.com/ajdamico/usgsd/blob/master/Survey%20of%20Business%20Owners/pums%20code.sas                                      #
+# email: https://github.com/ajdamico/asdfree/blob/master/Survey%20of%20Business%20Owners/census%20emails%20regarding%20SBO%20PUMS.pdf         #
+#   csv: https://github.com/ajdamico/asdfree/blob/master/Survey%20of%20Business%20Owners/PUMS_MIN_FINAL.CSV                                   #
+#  code: https://github.com/ajdamico/asdfree/blob/master/Survey%20of%20Business%20Owners/pums%20code.sas                                      #
 #############################################################################################################################################
 
 
@@ -53,17 +44,19 @@
 # setwd( "C:/My Directory/SBO/" )
 # ..in order to set your current working directory
 
-# name the database (.db) file that should have been saved in the working directory
-sbo.dbname <- "sbo07.db"
+# name the database folder that should have been saved in the working directory
+SBO.dbname <- "sbo"
 
-library(RSQLite) 			# load RSQLite package (creates database files in R)
+
+library(MonetDBLite)
+library(DBI)				# load the DBI package (implements the R-database coding)
 library(mitools) 			# load mitools package (analyzes multiply-imputed data)
 library(survey) 			# load survey package (analyzes complex design surveys)
 library(downloader)			# downloads and then runs the source() function on scripts from github
 
 
 # load sbo-specific functions (a specially-designed series of multiply-imputed, hybrid-survey-object setup to match the census bureau's tech docs)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Survey%20of%20Business%20Owners/sbosvy%20functions.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Survey%20of%20Business%20Owners/sbosvy%20functions.R" , prompt = FALSE )
 
 
 # set R to produce conservative standard errors instead of crashing
@@ -91,12 +84,11 @@ options( survey.lonely.psu = "adjust" )
 # step 1: connect to the sbo data table you'd like to recode # 
 # then make a copy so you don't lose the pristine original.  #
 
-# the command 
-db <- dbConnect( SQLite() , sbo.dbname )
-# connects the current instance of r to the sqlite database
+# name the database files in the "SIPP08" folder of the current working directory
+dbfolder <- paste0( getwd() , "/" , SBO.dbname )
 
-# load the mathematical functions in the r package RSQLite.extfuns
-initExtension(db)
+# connect to the MonetDBLite database (.db)
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 # now simply copy you'd like to recode into a new table
 dbSendQuery( db , "CREATE TABLE x AS SELECT * FROM y" )
@@ -172,7 +164,7 @@ for ( i in 1:4 ){
 }
 
 # add a new character column called `tab` to the `x` data table
-dbSendQuery( db , 'ALTER TABLE x ADD COLUMN tab VARCHAR(255)' )
+dbSendQuery( db , 'ALTER TABLE x ADD COLUMN tab STRING' )
 
 # any business owned by less than half minorities is an `N`
 dbSendQuery( db , "UPDATE x SET tab = 'N' WHERE pct_minority < 50" )
@@ -218,13 +210,6 @@ for ( i in 1:10 ){
 }
 
 
-# note! big note!
-# you can delete these ten tables you just created easily,
-# with this easy, easy, easy loop:
-# for ( i in 1:10 ) dbRemoveTable( db , paste0( 'x' , i ) )
-# of course it didn't run if you didn't uncomment it ;)
-
-
 #############################################################################
 # step 4: create a new survey design object connecting to the recoded table #
 
@@ -239,9 +224,10 @@ sbo.coef <-
 		id = ~1 ,
 		weight = ~tabwgt ,
 		data = 'x' ,
-		dbname = sbo.dbname ,
-		dbtype = "SQLite"
+		dbtype = "MonetDBLite" ,
+		dbname = dbfolder
 	)
+
 # this one just uses the original table `x`
 
 # create a survey design object with the SBO design
@@ -251,9 +237,10 @@ sbo.var <-
 		id = ~1 ,
 		weight = ~newwgt ,
 		data = imputationList( datasets = as.list( paste0( 'x' , 1:10 ) ) ) ,
-		dbname = sbo.dbname ,
-		dbtype = "SQLite"
+		dbtype = "MonetDBLite" ,
+		dbname = dbfolder
 	)
+
 # this one uses the ten `x1` thru `x10` tables you just made.
 
 
@@ -316,17 +303,11 @@ out <- out[ order( out$fipst ) , ]
 
 # and that is a beautiful thing.
 
+
+# note! big note!
+# you can delete these eleven tables you just created easily,
+# with this easy, easy, easy loop:
+dbRemoveTable( db , 'x' )
+for ( i in 1:10 ) dbRemoveTable( db , paste0( 'x' , i ) )
+
 	
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

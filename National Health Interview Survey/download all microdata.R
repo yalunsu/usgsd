@@ -8,25 +8,16 @@
 # options( encoding = "windows-1252" )		# # only macintosh and *nix users need this line
 # library(downloader)
 # setwd( "C:/My Directory/NHIS/" )
-# nhis.years.to.download <- 2014:1963
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Health%20Interview%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# nhis.years.to.download <- 2015:1963
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Health%20Interview%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ######################################################################################
@@ -62,14 +53,14 @@ if ( .Platform$OS.type != 'windows' ) print( 'non-windows users: read this block
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "SAScii" , "RCurl" , "downloader" ) )
+# install.packages( c( "SAScii" , "RCurl" , "downloader" , "digest" ) )
 
 
 # define which years to download #
 
 # uncomment this line to download all available data sets
 # uncomment this line by removing the `#` at the front
-# nhis.years.to.download <- 2013:1963
+# nhis.years.to.download <- 2015:1963
 
 # uncomment this line to only download the 2012 files
 # nhis.years.to.download <- 2012
@@ -97,7 +88,6 @@ csv <- FALSE
 # no need to edit anything below this line #
 
 
-if ( 2014 %in% nhis.years.to.download ) message( "2014 imputed income not yet available" )
 
 
 # # # # # # # # #
@@ -115,10 +105,10 @@ tf <- tempfile() ; td <- tempdir()
 # main NHIS ftp site
 main.nhis.ftp <- "ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NHIS/"
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
@@ -163,7 +153,7 @@ for ( year in nhis.years.to.download ){
 			
 			# attempt #1:
 			# simply download the file into the local directory
-			attempt1 <- try( download.cache( paste0( doc.nhis.ftp , fn ) , destfile = paste0( docs.output.directory , fn ) , mode = 'wb' ) , silent = TRUE )
+			attempt1 <- try( download_cached( paste0( doc.nhis.ftp , fn ) , destfile = paste0( docs.output.directory , fn ) , mode = 'wb' ) , silent = TRUE )
 			
 			# if the attempt to download the file resulted in an error..
 			if ( class( attempt1 ) == 'try-error' ){
@@ -176,7 +166,7 @@ for ( year in nhis.years.to.download ){
 				# and try again!
 				
 				# simply download the file into the local directory
-				download.cache( paste0( doc.nhis.ftp , fn ) , destfile = paste0( docs.output.directory , fn ) , mode = 'wb' )
+				download_cached( paste0( doc.nhis.ftp , fn ) , destfile = paste0( docs.output.directory , fn ) , mode = 'wb' )
 				
 			}
 
@@ -336,7 +326,7 @@ for ( year in nhis.years.to.download ){
 			
 			# attempt #1:
 			# simply download the file into the local directory
-			try.error <- try( download.cache( efl , destfile = paste0( output.directory , fn ) , mode = 'wb' ) , silent = TRUE )
+			try.error <- try( download_cached( efl , destfile = paste0( output.directory , fn ) , mode = 'wb' ) , silent = TRUE )
 			
 			# if the attempt to download the file resulted in an error..
 			if ( class( try.error ) == 'try-error' ){
@@ -349,7 +339,7 @@ for ( year in nhis.years.to.download ){
 				# and try again!
 				
 				# simply download the file into the local directory
-				download.cache( efl , destfile = paste0( output.directory , fn ) , mode = 'wb' )
+				download_cached( efl , destfile = paste0( output.directory , fn ) , mode = 'wb' )
 				
 			}
 						
@@ -365,55 +355,17 @@ for ( year in nhis.years.to.download ){
 			# substr( fn , 1 , dp - 1 ) identifies the string up to the final '.sas' to allow the 2004 files' folder structure to work
 			sas_ri <- paste0( "ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Program_Code/NHIS/" , year , "/" , substr( fn , 1 , dp - 1 ) , ".sas" )
 
-			# save the nhis dataframe / read.SAScii download & import command into an expression
-			ndrs <- expression( nhis.df <- read.SAScii( efl , sas_ri , zipped = T ) )
+			# download the zipped file to a temporary file
+			download_cached( efl , tf , mode = 'wb' )
 			
+			# unzip the downloaded file
+			ztf <- unzip( tf , exdir = tempdir() )
 			
-			# start of error-handling
+			# if the zipped file includes a csv file, pick only the `.dat` file instead
+			if( length( ztf ) > 1 ) ztf <- ztf[ grep( "\\.dat$" , tolower( ztf ) ) ]
 			
-			# blank out the try.error object
-			try.error <- NULL
-			
-			# attempt #1:
-			# read the nhis file directly into an R data frame.. actually run the expression constructed above
-			try.error <- try( eval( ndrs ) , silent = T )
-			
-			# if the attempt to download the file resulted in an error..
-			if ( class( try.error ) == "try-error" ){
-				
-				# attempt #2
-				
-				# wait for three minutes
-				Sys.sleep( 3 * 60 )
-				
-				# and try again!
-				
-				# read the nhis file directly into an R data frame.. actually run the expression constructed above
-				try.error <- try( eval( ndrs ) , silent = T )
-				
-			}
-			
-			# if the attempt to download the file resulted in a second error..
-			if ( class( try.error ) == "try-error" ){
-				
-				# attempt #3
-				
-				# wait for three more minutes
-				Sys.sleep( 3 * 60 )
-				
-				# and try a third-and-final time
-				
-				# read the nhis file directly into an R data frame.. actually run the expression constructed above
-				eval( ndrs )
-				# note that this third attempt no longer contains error-handling
-				# (so if the command throws an error, the program will just crash)
-				
-				# if the download / read-in was still unsuccessful after the third attempt,
-				# the program will crash
-			}
-			
-			# end of error-handling
-			
+			# now load the fixed-width file directly into a data.frame object
+			nhis.df <- read.SAScii( ztf , sas_ri )
 			
 			# convert all column names to lowercase
 			names( nhis.df ) <- tolower( names( nhis.df ) )
@@ -448,8 +400,8 @@ for ( year in nhis.years.to.download ){
 	###########################
 	
 	# if the year is after 1996, then download the imputed income files
-	# if ( year > 1996 ){
-	if ( year %in% 1997:2013 ){
+	if ( year > 1996 ){
+	# if ( year %in% 1997:2014 ){
 		
 		# imputed income files must be downloaded using a different method #
 	
@@ -469,167 +421,170 @@ for ( year in nhis.years.to.download ){
 			# determine the exact ftp location (efl) of the file on the nhis ftp site
 			efl <- paste0( year.nhis.ftp , i )
 	
-			# ..and simply download the file into the local directory
-			download.cache( efl , destfile = paste0( output.directory , i ) , mode = 'wb' )
+			# ..and simply download the file into the local directory.
+			try( download_cached( efl , destfile = paste0( output.directory , i ) , mode = 'wb' ) , silent = TRUE )
+			# ..but if it fails, who cares.
 			
 		}
 		
 		# search for the SAS importation script (.sas)
 		# this will determine which data file to read in
-		sas.file <- tolower( ftp.files[ grepl( '.sas' , ftp.files ) ] )
+		all_sas_files <- tolower( ftp.files[ grepl( '.sas' , ftp.files ) ] )
 
 		# if both incmimp.sas and incimps.sas are available,
-		# use incmimp (because it matches more current years)
-		if ( identical( sort( sas.file ) , c( 'incimps.sas' , 'incmimp.sas' ) ) ) sas.file <- 'incmimp.sas'
-		
-		# figure out the SAScii.start position
-		# in NHIS imputed income files, each INPUT block is directly preceded by the text "INPUT ALL VARIABLES"
-		# so just find it and add one line
-		SAScii.start <- grep( "INPUT ALL VARIABLES" , readLines( paste0( year.nhis.ftp , sas.file ) ) ) + 1
-		
-		# the data file to download should have the exact same prefix
-		# but either .exe or .zip as a suffix
-		possible.exe <- gsub( '.sas' , '.exe' , sas.file )
-		possible.zip <- gsub( '.sas' , '.zip' , sas.file )
-		
-		# if the '.exe' file exists in the directory,
-		if ( possible.exe %in% ftp.files ){
-		
-			# use that as the file to download
-			efl <- paste0( year.nhis.ftp , possible.exe )
+		# as they are for some years, then download them all
+		for ( sas.file in all_sas_files ){
 			
-		} else {
-		
-			# otherwise, assume the .zip file exists in the directory
-			efl <- paste0( year.nhis.ftp , possible.zip )
+			# figure out the SAScii.start position
+			# in NHIS imputed income files, each INPUT block is directly preceded by the text "INPUT ALL VARIABLES"
+			# so just find it and add one line
+			SAScii.start <- grep( "INPUT ALL VARIABLES" , readLines( paste0( year.nhis.ftp , sas.file ) ) ) + 1
 			
-		}
-		
-		# download the compressed file from the nhis ftp site
-		# and save it to a temporary file on your local disk
-		# ..but just save this download.cache into an error-handling expression
-		dfeh <- expression( download.cache( efl , tf , mode = "wb" ) )
-	
-		
-		# start of error-handling
-	
-		# blank out the try.error object
-		try.error <- NULL
-		
-		# attempt #1:
-		# download the file.. actually run the expression constructed above
-		try.error <- try( eval( dfeh ) , silent = T )
-		
-		# if the attempt to download the file resulted in an error..
-		if ( class( try.error ) == "try-error" ){
+			# the data file to download should have the exact same prefix
+			# but either .exe or .zip as a suffix
+			possible.exe <- gsub( '.sas' , '.exe' , sas.file )
+			possible.zip <- gsub( '.sas' , '.zip' , sas.file )
 			
-			# attempt #2
+			# if the '.exe' file exists in the directory,
+			if ( possible.exe %in% ftp.files ){
 			
-			# wait for three minutes
-			Sys.sleep( 3 * 60 )
+				# use that as the file to download
+				efl <- paste0( year.nhis.ftp , possible.exe )
+				
+			} else {
 			
-			# and try again!
+				# otherwise, assume the .zip file exists in the directory
+				efl <- paste0( year.nhis.ftp , possible.zip )
+				
+			}
 			
+			# download the compressed file from the nhis ftp site
+			# and save it to a temporary file on your local disk
+			# ..but just save this download_cached into an error-handling expression
+			dfeh <- expression( download_cached( efl , tf , mode = "wb" ) )
+		
+			
+			# start of error-handling
+		
+			# blank out the try.error object
+			try.error <- NULL
+			
+			# attempt #1:
 			# download the file.. actually run the expression constructed above
 			try.error <- try( eval( dfeh ) , silent = T )
 			
-		}
-		
-		# if the attempt to download the file resulted in a second error..
-		if ( class( try.error ) == "try-error" ){
+			# if the attempt to download the file resulted in an error..
+			if ( class( try.error ) == "try-error" ){
+				
+				# attempt #2
+				
+				# wait for three minutes
+				Sys.sleep( 3 * 60 )
+				
+				# and try again!
+				
+				# download the file.. actually run the expression constructed above
+				try.error <- try( eval( dfeh ) , silent = T )
+				
+			}
 			
-			# attempt #3
+			# if the attempt to download the file resulted in a second error..
+			if ( class( try.error ) == "try-error" ){
+				
+				# attempt #3
+				
+				# wait for three more minutes
+				Sys.sleep( 3 * 60 )
+				
+				# and try a third-and-final time
+				
+				# download the file.. actually run the expression constructed above
+				eval( dfeh )
+				# note that this third attempt no longer contains error-handling
+				# (so if the command throws an error, the program will just crash)
+				
+				# if the download was still unsuccessful after the third attempt,
+				# the program will crash
+			}
+			# end of error-handling
 			
-			# wait for three more minutes
-			Sys.sleep( 3 * 60 )
-			
-			# and try a third-and-final time
-			
-			# download the file.. actually run the expression constructed above
-			eval( dfeh )
-			# note that this third attempt no longer contains error-handling
-			# (so if the command throws an error, the program will just crash)
-			
-			# if the download was still unsuccessful after the third attempt,
-			# the program will crash
-		}
-		# end of error-handling
-		
-		# unzip the file into a temporary directory.
-		# the unzipped file should contain *five* ascii files
-		income.file.names <- sort( unzip( tf , exdir = td ) )
-			
-		# loop through all five imputed income files
-		for ( i in 1:length( income.file.names ) ){
+			# unzip the file into a temporary directory.
+			# the unzipped file should contain *five* ascii files
+			income.file.names <- sort( unzip( tf , exdir = td ) )
+				
+			# loop through all five imputed income files
+			for ( i in 1:length( income.file.names ) ){
 
-			# print current progress to the screen
-			print( paste( "currently working on imputed income file" , i , "of 5" ) )
-		
-			# read the ascii dat file directly into R with read.SAScii()
-			ii <- 
-				read.SAScii( 
-					income.file.names[ i ] , 				# location of the ascii file in a temp directory on the local disk
-					paste0( year.nhis.ftp , sas.file ) ,	# location of the sas import instructions on the nhis ftp site
-					beginline = SAScii.start				# code line in the sas import instructions where the INPUT block begins (determined above)
+				# print current progress to the screen
+				print( paste( "currently working on imputed income file" , i , "of 5" ) )
+			
+				# read the ascii dat file directly into R with read.SAScii()
+				ii <- 
+					read.SAScii( 
+						income.file.names[ i ] , 				# location of the ascii file in a temp directory on the local disk
+						paste0( year.nhis.ftp , sas.file ) ,	# location of the sas import instructions on the nhis ftp site
+						beginline = SAScii.start				# code line in the sas import instructions where the INPUT block begins (determined above)
+					)
+
+				# the read.SAScii function produces column names in whatever case specified by the sas importation script
+				# convert them all to lowercase
+				names( ii ) <- tolower( names( ii ) )
+
+				# dump rectype variable from the imputed income data frame
+				# it is already on the personsx file, so it will screw up the merge
+				ii$rectype <- NULL
+				
+				# store the imputed income data table into a new data frame (named ii1 through ii5)
+				assign( 
+					paste0( "ii" , i ) , 
+					ii
 				)
-
-			# the read.SAScii function produces column names in whatever case specified by the sas importation script
-			# convert them all to lowercase
-			names( ii ) <- tolower( names( ii ) )
-
-			# dump rectype variable from the imputed income data frame
-			# it is already on the personsx file, so it will screw up the merge
-			ii$rectype <- NULL
+				
+				# delete ii (since it's also saved as ii#)
+				ii <- NULL
+				
+				# garbage collection - free up RAM from recently-deleted data tables
+				gc()
+				
+			}
 			
-			# store the imputed income data table into a new data frame (named ii1 through ii5)
-			assign( 
-				paste0( "ii" , i ) , 
-				ii
-			)
+			# save all five imputed income data frames to a single .rda file #
 			
-			# delete ii (since it's also saved as ii#)
-			ii <- NULL
+			# determine the output file name (ofn)
+			ofn <- paste0( output.directory , gsub( '.sas' , '.rda' , sas.file ) )
+			
+			# then save ii1 - ii5 to that .rda file on the local disk
+			if ( rda ) save( list = paste0( "ii" , 1:5 ) , file = ofn )
+			
+			# if the csv option is flagged, then save ii1 - ii5 to five .csv files on the local disk
+			if ( csv ){
+				for ( i in 1:5 ) {
+					write.csv( 
+						get( paste0( "ii" , i ) ) , 
+						paste0( output.directory , gsub( '.sas' , paste0( i , '.csv' ) , sas.file ) ) 
+					)
+				}
+			}
+			
+			# if the dta option is flagged, then save ii1 - ii5 to five stata files on the local disk
+			if ( dta ){
+				for ( i in 1:5 ) {
+					write.dta( 
+						get( paste0( "ii" , i ) ) , 
+						paste0( output.directory , gsub( '.sas' , paste0( i , '.dta' ) , sas.file ) ) 
+					)
+				}
+			}
+			
+			
+			
+			# remove all five imputed income data tables from RAM
+			rm( list = paste0( "ii" , 1:5 ) )
 			
 			# garbage collection - free up RAM from recently-deleted data tables
 			gc()
 			
 		}
-		
-		# save all five imputed income data frames to a single .rda file #
-		
-		# determine the output file name (ofn)
-		ofn <- paste0( output.directory , gsub( '.sas' , '.rda' , sas.file ) )
-		
-		# then save ii1 - ii5 to that .rda file on the local disk
-		if ( rda ) save( list = paste0( "ii" , 1:5 ) , file = ofn )
-		
-		# if the csv option is flagged, then save ii1 - ii5 to five .csv files on the local disk
-		if ( csv ){
-			for ( i in 1:5 ) {
-				write.csv( 
-					get( paste0( "ii" , i ) ) , 
-					paste0( output.directory , gsub( '.sas' , paste0( i , '.csv' ) , sas.file ) ) 
-				)
-			}
-		}
-		
-		# if the dta option is flagged, then save ii1 - ii5 to five stata files on the local disk
-		if ( dta ){
-			for ( i in 1:5 ) {
-				write.dta( 
-					get( paste0( "ii" , i ) ) , 
-					paste0( output.directory , gsub( '.sas' , paste0( i , '.dta' ) , sas.file ) ) 
-				)
-			}
-		}
-		
-		
-		
-		# remove all five imputed income data tables from RAM
-		rm( list = paste0( "ii" , 1:5 ) )
-		
-		# garbage collection - free up RAM from recently-deleted data tables
-		gc()
 		
 	}
 }
@@ -637,17 +592,3 @@ for ( year in nhis.years.to.download ){
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste( "all done.  you should set" , getwd() , "read-only so you don't accidentally alter these files." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

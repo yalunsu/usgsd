@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/HRS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Health%20and%20Retirement%20Study/import%20longitudinal%20RAND%20contributed%20files.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Health%20and%20Retirement%20Study/import%20longitudinal%20RAND%20contributed%20files.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -32,7 +23,7 @@
 # prior to running this analysis script, the longitudinal RAND-contributed HRS files must be downloaded and unzipped on the #
 # local machine. running the download HRS microdata.R script download all of the necessary files automatically              #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/Health%20and%20Retirement%20Study/download%20HRS%20microdata.R               #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/Health%20and%20Retirement%20Study/download%20HRS%20microdata.R               #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will place the HRS files "rndhrs_n.dta" and a few others in the "C:/My Directory/HRS/download" folder         #
 #############################################################################################################################
@@ -58,7 +49,7 @@ db.name <- 'RAND.db'
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( "RSQLite" )
+# install.packages( c( "RSQLite" , "readstata13" ) )
 
 # no need to edit anything below this line #
 
@@ -68,8 +59,8 @@ db.name <- 'RAND.db'
 # # # # # # # # #
 
 
-library(foreign) 	# load foreign package (converts data files into R)
-library(RSQLite) 	# load RSQLite package (creates database files in R)
+library(readstata13)	# load readstata13 package (imports stata version 13+ data files into R)
+library(RSQLite) 		# load RSQLite package (creates database files in R)
 
 
 # create a new RAND database in the main working folder
@@ -100,7 +91,7 @@ for ( j in tn ){
 	fn <- get( paste0( j , '.file' ) )
 
 	# read the current file into RAM
-	x <- read.dta( fn , convert.factors = FALSE )
+	x <- read.dta13( fn , convert.factors = FALSE )
 
 	# determine each chunk size
 	starts.stops <- floor( seq( 1 , nrow( x ) , length.out = chunks ) )
@@ -132,17 +123,3 @@ for ( j in tn ){
 	gc()
 }
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

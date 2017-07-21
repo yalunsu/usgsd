@@ -8,7 +8,7 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/CES/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Consumer%20Expenditure%20Survey/2011%20fmly%20intrvw%20-%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Consumer%20Expenditure%20Survey/2011%20fmly%20intrvw%20-%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
@@ -19,19 +19,10 @@
 # http://www.bls.gov/cex/pumd/documentation/documentation11.zip
 
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -40,7 +31,7 @@
 # prior to running this replication script, all ces 2011 public use microdata files must be loaded as R data      #
 # files (.rda) on the local machine. running the "2010-2011 ces - download.R" script will create these files.     #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Consumer%20Expenditure%20Survey/download%20all%20microdata.R      #
+# https://github.com/ajdamico/asdfree/blob/master/Consumer%20Expenditure%20Survey/download%20all%20microdata.R      #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will save a number of .rda files in C:/My Directory/CES/2011/ (or the working directory was chosen) #
 ###################################################################################################################
@@ -66,20 +57,15 @@
 options( scipen = 20 )
 
 
-# remove the # in order to run this install.packages line only once
-# install.packages( c( "RSQLite" , "mitools" , "stringr" , "plyr" , "survey" , "downloader" ) )
-
-
-library(RSQLite) 	# load RSQLite package (creates database files in R)
-library(mitools)	# allows analysis of multiply-imputed survey data
-library(stringr) 	# load stringr package (manipulates character strings easily)
-library(plyr)		# contains the rbind.fill() function, which stacks two data frames even if they don't contain the same columns.  the rbind() function does not do this
-library(survey)		# load survey package (analyzes complex design surveys)
-library(downloader)	# downloads and then runs the source() function on scripts from github
+library(mitools)		# allows analysis of multiply-imputed survey data
+library(stringr) 		# load stringr package (manipulates character strings easily)
+library(plyr)			# contains the rbind.fill() function, which stacks two data frames even if they don't contain the same columns.  the rbind() function does not do this
+library(survey)			# load survey package (analyzes complex design surveys)
+library(downloader)		# downloads and then runs the source() function on scripts from github
 
 
 # load two svyttest functions (one to conduct a df-adjusted t-test and one to conduct a multiply-imputed t-test)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Consumer%20Expenditure%20Survey/ces.svyttest.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Consumer%20Expenditure%20Survey/ces.svyttest.R" , prompt = FALSE )
 # now that these two functions have been loaded into r, you can view their source code by uncommenting the two lines below
 # svyttest.df
 # svyttest.mi
@@ -88,9 +74,6 @@ source_url( "https://raw.github.com/ajdamico/usgsd/master/Consumer%20Expenditure
 # set this number to the year you would like to analyze..
 year <- 2011
 
-# choose a database name to be saved in the year-specific working directory.  this defaults to 
-# "ces.fmly.####.db" but can be changed by replacing the paste() function with any character string ending in '.db'
-db.name <- paste( "ces.fmly" , year , "db" , sep = "." )
 
 # r will now take the year you've selected and re-assign the current working directory
 # to the year-specific folder based on what you'd set above
@@ -438,18 +421,12 @@ svyttest.df( fincbtxm ~ factor( bls_urbn ) , fmly.design , df = 45 )	# yes again
 # in table 5, the variable fincbtx5 will be saved as fincbtxmi
 # this pattern (of variables ending with 'mi') will be repeated for each of the multiply-imputed columns in the fmly data table
 
-# in order to conserve memory, these five tables will be stored in a sqlite database (.db) file on the local disk
-# the storage location can be specified by the user near the top of this script.  the current storage location is:
-paste( getwd() , db.name , sep = "/" )
-
 
 # once these five distinct data tables have been saved within the sqlite database (.db),
 # a new object class (an imputationList - type ?imputationList to read about it)
 # will be used to analyze anything involving multiply-imputed variables quickly
 
 
-# open the connection to a new sqlite database
-db <- dbConnect( SQLite() , db.name )
 
 # create a vector containing all of the multiply-imputed variables (leaving the numbers off the end)
 mi.vars <- 
@@ -481,7 +458,7 @@ for ( i in 1:5 ){
 	}
 	
 	# save the current table in the sqlite database as 'imp1' 'imp2' etc.
-	dbWriteTable( db , paste0( 'imp' , i ) , x )
+	assign( paste0( 'imp' , i ) , x )
 
 	# remove the temporary table
 	rm( x )
@@ -498,12 +475,13 @@ fmly.imp <-
 	svrepdesign( 
 		weights = ~finlwt21 , 
 		repweights = "wtrep[0-9]+" , 
-		data = imputationList( datasets = as.list( paste0( 'imp' , 1:5 ) ) , dbtype = "SQLite" ) , 
+		data = imputationList( list( imp1 , imp2 , imp3 , imp4 , imp5 ) ) , 
 		type = "BRR" ,
-		combined.weights = TRUE , 
-		dbname = db.name
+		combined.weights = TRUE
 	)
 
+rm( imp1 , imp2 , imp3 , imp4 , imp5 ) ; gc()
+	
 # this new fmly.imp can be used to do many of the same things as the fmly.design object
 # main advantage: allows analysis of multiply-imputed variables (like these:)
 mi.vars
@@ -694,17 +672,3 @@ summary( svyglm( factor( bls_urbn ) ~ totexppq + totexpcq , fmly.design , family
 # notice that before-tax income is a multiply-imputed variable in this analysis command
 summary( MIcombine( with( fmly.imp , svyglm( factor( bls_urbn ) ~ fincbtxmi + totexpcq , family = quasibinomial()  ) ) ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -1,37 +1,27 @@
 # analyze survey data for free (http://asdfree.com) with the r language
 # home mortgage disclosure act
-# 2006 - 2012 files
+# 2006 - 2014 files
 
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
 # # # # # # # # # # # # # # # # #
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
 # path.to.7z <- "7za"							# # only macintosh and *nix users need this line
 # library(downloader)
 # setwd( "C:/My Directory/HMDA/" )
-# years.to.download <- 2012:2006
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Home%20Mortgage%20Disclosure%20Act/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# years.to.download <- 2014:2006
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Home%20Mortgage%20Disclosure%20Act/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
 
 ##################################################################################
-# download all 2006 - 2012 microdata for the home mortgage disclosure act with R #
+# download all 2006 - 2014 microdata for the home mortgage disclosure act with R #
 ##################################################################################
 
 
@@ -46,37 +36,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
-# # # # # # # # # # # # # # #
-# warning: monetdb required #
-# # # # # # # # # # # # # # #
-
-
-# windows machines and also machines without access
-# to large amounts of ram will often benefit from
-# the following option, available as of MonetDB.R 0.9.2 --
-# remove the `#` in the line below to turn this option on.
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
-# -- whenever connecting to a monetdb server,
-# this option triggers sequential server processing
-# in other words: single-threading.
-# if you would prefer to turn this on or off immediately
-# (that is, without a server connect or disconnect), use
-# turn on single-threading only
-# dbSendQuery( db , "set optimizer = 'sequential_pipe';" )
-# restore default behavior -- or just restart instead
-# dbSendQuery(db,"set optimizer = 'default_pipe';")
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-###################################################################################################################################
-# prior to running this analysis script, monetdb must be installed on the local machine.  follow each step outlined on this page: #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/MonetDB/monetdb%20installation%20instructions.R                                   #
-###################################################################################################################################
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-
-# all 2006-2012 HMDA data files will be stored
+# all 2006-2014 HMDA data files will be stored
 # in a your current working directory
 # use forward slashes instead of back slashes
 
@@ -84,13 +44,12 @@
 # setwd( "C:/My Directory/HMDA/" )
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "SAScii" , "R.utils" , "MonetDB.R" , "downloader" ) )
-
+# install.packages( c( "MonetDBLite" , "SAScii" , "descr" , "downloader" , "digest" , "R.utils" ) )
 
 # choose which hmda data sets to download
 # uncomment this line to download all available data sets
 # uncomment this line by removing the `#` at the front
-# years.to.download <- 2012:2006
+# years.to.download <- 2014:2006
 # if you have a big hard drive, hey why not download them all?
 
 # remove the `#` in order to just download 2011
@@ -103,17 +62,23 @@
 # program start #
 # # # # # # # # #
 
+# check if 7z is working
+if( ( .Platform$OS.type != 'windows' ) && ( system( paste0('"', path.to.7z , '" -h' ) ) != 0 ) ) stop("you need to install 7-zip")
 
 library(R.utils)		# load the R.utils package (counts the number of lines in a file quickly)
-library(MonetDB.R)		# load the MonetDB.R package (connects r to a monet database)
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
 library(downloader)		# downloads and then runs the source() function on scripts from github
 library(SAScii) 		# load the SAScii package (imports ascii data with a SAS script)
 
+# this script's download files should be incorporated in download_cached's hash list
+options( "download_cached.hashwarn" = TRUE )
+# warn the user if the hash does not yet exist
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
@@ -122,107 +87,24 @@ source_url(
 # load the read.SAScii.monetdb() function,
 # which imports ASCII (fixed-width) data files directly into a monet database
 # using only a SAS importation script
-source_url( "https://raw.github.com/ajdamico/usgsd/master/MonetDB/read.SAScii.monetdb.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/MonetDB/read.SAScii.monetdb.R" , prompt = FALSE )
 
 # create five temporary files and also a temporary directory on the local disk
 tf <- tempfile() ; tf2 <- tempfile() ; tf3 <- tempfile() ; tf4 <- tempfile() ; tf5 <- tempfile() ; td <- tempdir()
 
 
 # download the layout files for the loan applications received (lar) and institutional records (ins) data tables
-download.cache( "https://raw.github.com/ajdamico/usgsd/master/Home%20Mortgage%20Disclosure%20Act/lar_str.csv" , tf , FUN = download )
-download.cache( "https://raw.github.com/ajdamico/usgsd/master/Home%20Mortgage%20Disclosure%20Act/ins_str.csv" , tf2 , FUN = download )
+download_cached( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Home%20Mortgage%20Disclosure%20Act/lar_str.csv" , tf , FUN = download )
+download_cached( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Home%20Mortgage%20Disclosure%20Act/ins_str.csv" , tf2 , FUN = download )
 
 
 # configure a monetdb database for the hmda on windows #
 
-# note: only run this command once.  this creates an executable (.bat) file
-# in the appropriate directory on your local disk.
-# when adding new files or adding a new year of data, this script does not need to be re-run.
+# name the database files in the "MonetDB" folder of the current working directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
 
-# create a monetdb executable (.bat) file for the home mortgage disclosure act data
-batfile <-
-	monetdb.server.setup(
-					
-					# set the path to the directory where the initialization batch file and all data will be stored
-					database.directory = paste0( getwd() , "/MonetDB" ) ,
-					# must be empty or not exist
-					
-					# find the main path to the monetdb installation program
-					monetdb.program.path = 
-						ifelse( 
-							.Platform$OS.type == "windows" , 
-							"C:/Program Files/MonetDB/MonetDB5" , 
-							"" 
-						) ,
-					# note: for windows, monetdb usually gets stored in the program files directory
-					# for other operating systems, it's usually part of the PATH and therefore can simply be left blank.
-										
-					# choose a database name
-					dbname = "hmda" ,
-					
-					# choose a database port
-					# this port should not conflict with other monetdb databases
-					# on your local computer.  two databases with the same port number
-					# cannot be accessed at the same time
-					dbport = 50005
-	)
-
-
-
-# this next step is so very important.
-
-# store a line of code that will make it easy to open up the monetdb server in the future.
-# this should contain the same file path as the batfile created above,
-# you're best bet is to actually look at your local disk to find the full filepath of the executable (.bat) file.
-# if you ran this script without changes, the batfile will get stored in C:\My Directory\HMDA\MonetDB\hmda.bat
-
-# here's the batfile location:
-batfile
-
-# note that since you only run the `monetdb.server.setup()` function the first time this script is run,
-# you will need to note the location of the batfile for future MonetDB analyses!
-
-# in future R sessions, you can create the batfile variable with a line like..
-# batfile <- "C:/My Directory/HMDA/MonetDB/hmda.bat"		# # note for mac and *nix users: `hmda.bat` might be `hmda.sh` instead
-# obviously, without the `#` comment character
-
-# hold on to that line for future scripts.
-# you need to run this line *every time* you access
-# the home mortgage disclosure act files with monetdb.
-# this is the monetdb server.
-
-# two other things you need: the database name and the database port.
-# store them now for later in this script, but hold on to them for other scripts as well
-dbname <- "hmda"
-dbport <- 50005
-
-# now the local windows machine contains a new executable program at "c:\my directory\hmda\monetdb\hmda.bat"
-
-# end of monetdb database configuration #
-
-
-# it's recommended that after you've _created_ the monetdb server,
-# you create a block of code like the one below to _access_ the monetdb server
-
-
-#####################################################################
-# lines of code to hold on to for all other `hmda` monetdb analyses #
-
-# first: specify your batfile.  again, mine looks like this:
-# uncomment this line by removing the `#` at the front..
-# batfile <- "C:/My Directory/HMDA/MonetDB/hmda.bat"		# # note for mac and *nix users: `hmda.bat` might be `hmda.sh` instead
-
-# second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
-
-# third: your six lines to make a monet database connection.
-# just like above, mine look like this:
-dbname <- "hmda"
-dbport <- 50005
-
-monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
-db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
+# open the connection to the monetdblite database
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 
 # # # # run your analysis commands # # # #
@@ -262,8 +144,10 @@ office.names <- tolower( parse.SAScii( tf4 )$varname )
 # loop through each of the years to download..
 for ( year in substr( years.to.download , 3 , 4 ) ){
 
+	if( year == "14" ) one_two <- 'hmda' else one_two <- c( 'hmda' , 'pmic' )
+
 	# loop through both the public (hmda) and private (pmic) data files..
-	for ( pubpriv in c( 'hmda' , 'pmic' ) ){
+	for ( pubpriv in one_two ){
 
 		# reporter panel, msa_md with home, msa office do not exist in 2006, so skip it.
 		if ( as.numeric( year ) > 6 ){
@@ -272,17 +156,16 @@ for ( year in substr( years.to.download , 3 , 4 ) ){
 			
 			# the 2007, 2008, and 2009 reporter panel sas importation scripts are different from post-2009
 			if ( as.numeric( year ) < 10 ){
-				sas_ri <- "https://raw.github.com/ajdamico/usgsd/master/Home%20Mortgage%20Disclosure%20Act/Reporter%20Panel%20Pre-2010.sas"
+				sas_ri <- "https://raw.githubusercontent.com/ajdamico/asdfree/master/Home%20Mortgage%20Disclosure%20Act/Reporter%20Panel%20Pre-2010.sas"
 			} else {
-				sas_ri <- "https://raw.github.com/ajdamico/usgsd/master/Home%20Mortgage%20Disclosure%20Act/Reporter%20Panel%202010.sas"
+				sas_ri <- "https://raw.githubusercontent.com/ajdamico/asdfree/master/Home%20Mortgage%20Disclosure%20Act/Reporter%20Panel%202010.sas"
 			}
 		
 			# download the sas importation instructions to a temporary file on the local disk
-			download.cache( sas_ri , tf3 , FUN = download )
-
+			download_cached( sas_ri , tf3 , FUN = download )
 
 			# construct the url of the current `ReporterPanel.zip` to download
-			fn <- paste0( "http://www.ffiec.gov/" , pubpriv , "rawdata/OTHER/20" , year , pubpriv , "ReporterPanel.zip" )
+			fn <- paste0( "https://www.ffiec.gov/" , pubpriv , "rawdata/OTHER/20" , year , toupper( pubpriv ) , "ReporterPanel.zip" )
 
 			
 			# read that temporary file directly into MonetDB,
@@ -290,17 +173,17 @@ for ( year in substr( years.to.download , 3 , 4 ) ){
 			read.SAScii.monetdb (
 				fn ,			# the url of the file to download
 				tf3 ,			# the 
-				zipped = T ,	# the ascii file is stored in a zipped file
+				zipped = TRUE ,	# the ascii file is stored in a zipped file
 				tl = TRUE ,		# convert all column names to lowercase
 				tablename = paste( pubpriv , 'rep' , year , sep = "_" ) ,
 				connection = db
 			)
 
 			# construct the url of the current `MSAOffice.zip`
-			fn <- paste0( "http://www.ffiec.gov/" , pubpriv , "rawdata/OTHER/20" , year , pubpriv , "MSAOffice.zip" )
+			fn <- paste0( "https://www.ffiec.gov/" , pubpriv , "rawdata/OTHER/20" , year , toupper( pubpriv ) , "MSAOffice.zip" )
 			
 			# download that file..
-			download.cache( fn , tf5 , mode = 'wb' )
+			download_cached( fn , tf5 , mode = 'wb' )
 			
 			# ..and extract it to the temporary directory
 			z <- unzip( tf5 , exdir = td )
@@ -316,6 +199,8 @@ for ( year in substr( years.to.download , 3 , 4 ) ){
 					col.names = office.names
 				)
 				
+			names( msa_ofc ) <- tolower( names( msa_ofc ) )
+				
 			# write the `msa` table into the database directly
 			dbWriteTable( db , paste( pubpriv , 'msa' , year , sep = "_" ) , msa_ofc )
 			
@@ -325,7 +210,7 @@ for ( year in substr( years.to.download , 3 , 4 ) ){
 			# clear up RAM
 			gc()
 			
-		}
+		} else z <- tempfile()
 		
 		# cycle through both institutional records and loan applications received microdata files
 		for ( rectype in c( "institutionrecords" , "lar%20-%20National" ) ){
@@ -359,13 +244,13 @@ for ( year in substr( years.to.download , 3 , 4 ) ){
 			}
 						
 			# construct the full url path of the file to download
-			fn <- paste0( "http://www.ffiec.gov/" , pubpriv , "rawdata/" , folder , "/20" , year , pubpriv , rectype , ".zip" )
+			fn <- paste0( "https://www.ffiec.gov/" , pubpriv , "rawdata/" , folder , "/20" , year , toupper( pubpriv ) , rectype , ".zip" )
 
 			# clear out the temporary directory
 			file.remove( list.files( td , full.names = TRUE ) )
 			
 			# download the url into a temporary file on your local disk
-			download.cache( fn , tf , mode = 'wb' )
+			download_cached( fn , tf , mode = 'wb' )
 
 			# unzip the file's contents to the temporary directory
 			# extract the file, platform-specific
@@ -420,7 +305,7 @@ for ( year in substr( years.to.download , 3 , 4 ) ){
 				dbSendQuery( db , paste( "ALTER TABLE" , tablename , "ADD COLUMN temp_double DOUBLE" ) )
 
 				# copy over the contents of the character-typed column so long as the column isn't a textual missing
-				dbSendQuery( db , paste( "UPDATE" , tablename , "SET temp_double = CAST(" , col.rev , " AS DOUBLE ) WHERE NOT ( " , col.rev , " = 'NA    ' ) AND NOT ( " , col.rev , " = 'NA      ' )" ) )
+				dbSendQuery( db , paste( "UPDATE" , tablename , "SET temp_double = CAST(" , col.rev , " AS DOUBLE ) WHERE TRIM(" , col.rev , ") <> 'NA'" ) )
 				
 				# remove the character-typed column from the data table
 				dbSendQuery( db , paste( "ALTER TABLE" , tablename , "DROP COLUMN" , col.rev ) )
@@ -658,63 +543,10 @@ file.remove( tf , tf2 , tf3 , tf4 , tf5 , z , csv.file )
 dbListTables( db )		# print the tables stored in the current monet database to the screen
 
 
-# disconnect from the current monet database
-dbDisconnect( db )
-
-# and close it using the `pid`
-monetdb.server.stop( pid )
-
-
-
-
-#####################################################################
-# lines of code to hold on to for all other `hmda` monetdb analyses #
-
-# first: specify your batfile.  again, mine looks like this:
-# uncomment this line by removing the `#` at the front..
-# batfile <- "C:/My Directory/HMDA/MonetDB/hmda.bat"		# # note for mac and *nix users: `hmda.bat` might be `hmda.sh` instead
-
-# second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
-
-# third: your five lines to make a monet database connection.
-# just like above, mine look like this:
-dbname <- "hmda"
-dbport <- 50005
-
-monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
-db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
-
-# # # # run your analysis commands # # # #
+# set every table you've just created as read-only inside the database.
+for ( this_table in dbListTables( db ) ) dbSendQuery( db , paste( "ALTER TABLE" , this_table , "SET READ ONLY" ) )
 
 
 # disconnect from the current monet database
-dbDisconnect( db )
+dbDisconnect( db , shutdown = TRUE )
 
-# and close it using the `pid`
-monetdb.server.stop( pid )
-
-# end of lines of code to hold on to for all other `hmda` monetdb analyses #
-############################################################################
-
-
-# unlike most post-importation scripts, the monetdb directory cannot be set to read-only #
-message( paste( "all done.  DO NOT set" , getwd() , "read-only or subsequent scripts will not work." ) )
-
-message( "got that? monetdb directories should not be set read-only." )
-
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

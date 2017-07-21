@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/BSAPUF/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Basic%20Stand%20Alone%20Medicare%20Claims%20Public%20Use%20Files/2008%20-%20download%20all%20csv%20files.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Basic%20Stand%20Alone%20Medicare%20Claims%20Public%20Use%20Files/2008%20-%20download%20all%20csv%20files.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 #################################################################################
@@ -40,7 +31,8 @@
 # setwd( "C:/My Directory/BSAPUF/" )
 
 # remove the # in order to run this install.packages line only once
-# install.packages( "downloader" )
+# install.packages( c( "MonetDBLite" , "SAScii" , "descr" , "downloader" , "digest" , "R.utils" ) )
+
 
 # no need to edit anything below this line #
 
@@ -49,14 +41,17 @@
 # program start #
 # # # # # # # # #
 
+# this script's download files should be incorporated in download_cached's hash list
+options( "download_cached.hashwarn" = TRUE )
+# warn the user if the hash does not yet exist
 
 library(downloader)	# downloads and then runs the source() function on scripts from github
 
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
@@ -125,15 +120,15 @@ all.files <- c( inpatient , dme , pde , hospice , carrier , hha , outpatient , s
 for ( zf in all.files ){
 
 	# try the download.
-	other.attempt <- try( download.cache( paste0( ftp.l , zf ) , tf , FUN = download , attempts = 3 ) , silent = TRUE )
+	other.attempt <- try( download_cached( paste0( ftp.l , zf ) , tf , FUN = download , attempts = 3 ) , silent = TRUE )
 	
 	# if there is really nothing in the file..
-	if( class( other.attempt ) == 'try-error' || length( readLines( tf , n = 10 ) ) == 0 ){
+	if( class( other.attempt ) == 'try-error' ||  any( grepl( "Page Not Found" , readLines( tf , n = 100 ) )  ) ){
 	
 		# switch to the other url prefix
 		
 		# so long as the download didn't complete, keep trying.
-		download.cache( paste0( ftp.d , zf ) , tf , FUN = download , attempts = 3 )
+		download_cached( paste0( ftp.d , zf ) , tf , FUN = download , attempts = 3 )
 
 	# but if something (an incomplete file) was downloaded..
 	}
@@ -153,22 +148,3 @@ for ( zf in all.files ){
 # once complete, this script does not need to be run again for this year of data.
 # instead, use the monetdb importation script to import these .csv files
 # into a lightning-fast database for analysis
-
-
-# print a reminder: set the directory you just saved everything to as read-only!
-message( paste( "all done.  you should set" , getwd() , "read-only so you don't accidentally alter these files." ) )
-
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

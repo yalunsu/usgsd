@@ -9,28 +9,19 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/CES/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Consumer%20Expenditure%20Survey/replicate%20integrated%20mean%20and%20se.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Consumer%20Expenditure%20Survey/replicate%20integrated%20mean%20and%20se.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
 # this r script will replicate the massive table in the folder "Programs 2011\SAS\2011 Integrated Mean and SE.lst" inside the bls documentation
-# http://www.bls.gov/cex/pumd/documentation/documentation11.zip
+# http://www.bls.gov/cex/programs/sas11.zip
 
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -39,7 +30,7 @@
 # prior to running this replication script, all ces 2011 public use microdata files must be loaded as R data      #
 # files (.rda) on the local machine. running the "2010-2011 ces - download.R" script will create these files.     #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Consumer%20Expenditure%20Survey/download%20all%20microdata.R      #
+# https://github.com/ajdamico/asdfree/blob/master/Consumer%20Expenditure%20Survey/download%20all%20microdata.R      #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will save a number of .rda files in C:/My Directory/CES/2011/ (or the working directory was chosen) #
 ###################################################################################################################
@@ -68,14 +59,11 @@
 options( scipen = 20 )
 
 
-# remove the # in order to run this install.packages line only once
-# install.packages( c( "stringr" , "reshape2" , "sqldf" , "RSQLite" ) )
-
-
-library(stringr) 	# load stringr package (manipulates character strings easily)
-library(reshape2)	# load reshape2 package (transposes data frames quickly)
-library(sqldf)		# load the sqldf package (enables sql queries on data frames)
-library(RSQLite) 	# load RSQLite package (creates database files in R)
+library(stringr) 		# load stringr package (manipulates character strings easily)
+library(reshape2)		# load reshape2 package (transposes data frames quickly)
+library(sqldf)			# load the sqldf package (enables sql queries on data frames)
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
 
 
 # # # # # # # # # # # # # # # # # # # #
@@ -113,10 +101,10 @@ read.in.qs <-
 
 		# load all four
 		
-		load( paste0( "./" , filefolder , "/" , filestart , yr , "1.rda" ) )
-		load( paste0( "./" , filefolder , "/" , filestart , yr , "2.rda" ) )
-		load( paste0( "./" , filefolder , "/" , filestart , yr , "3.rda" ) )
-		load( paste0( "./" , filefolder , "/" , filestart , yr , "4.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , yr , "1.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , yr , "2.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , yr , "3.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , yr , "4.rda" ) )
 
 		# stack them on top of each other into a new data frame called x
 		x <- rbind( 
@@ -131,12 +119,12 @@ read.in.qs <-
 		# load all five
 		
 		# note the first will contain an x in the filename
-		load( paste0( "./" , filefolder , "/" , filestart , yr , "1x.rda" ) )
-		load( paste0( "./" , filefolder , "/" , filestart , yr , "2.rda" ) )
-		load( paste0( "./" , filefolder , "/" , filestart , yr , "3.rda" ) )
-		load( paste0( "./" , filefolder , "/" , filestart , yr , "4.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , yr , "1x.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , yr , "2.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , yr , "3.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , yr , "4.rda" ) )
 		# note the fifth will be from the following year's first quarter
-		load( paste0( "./" , filefolder , "/" , filestart , as.numeric( yr ) + 1 , "1.rda" ) )
+		load( paste0( "./" , year , "/" , filefolder , "/" , filestart , as.numeric( yr ) + 1 , "1.rda" ) )
 
 		# stack them on top of each other into a new data frame called x
 		x <- 
@@ -156,13 +144,9 @@ read.in.qs <-
 }
 
 
-# alter the current working directory to include the current analysis year
-# ..instead of "C:/My Directory/CES/" use "C:/My Directory/CES/2011"
-setwd( paste( getwd() , year , sep = "/" ) )
 
-
-# designate a temporary file to store a temporary database
-temp.db <- tempfile()
+# put the monetdblite database in a temporary directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
 
 
 # notes from the "Integrated Mean and SE.sas" file about this section: 
@@ -177,7 +161,7 @@ temp.db <- tempfile()
 
 
 # find the filepath to the IntStubYYYY.txt file
-sf <- paste0( "./docs/Programs " , year , "/IntStub" , year , ".txt" )
+sf <- paste0( "https://www.bls.gov/cex/" , year , "/csxintstub.txt" )
 
 # create a temporary file on the local disk..
 tf <- tempfile()
@@ -324,11 +308,11 @@ gc()
 # because of the large number of exceptions for these five files
 
 # load all five R data files (.rda)
-load( paste0( "./intrvw/fmli" , yr , "1x.rda" ) )
-load( paste0( "./intrvw/fmli" , yr , "2.rda" ) )
-load( paste0( "./intrvw/fmli" , yr , "3.rda" ) )
-load( paste0( "./intrvw/fmli" , yr , "4.rda" ) )
-load( paste0( "./intrvw/fmli" , as.numeric( yr ) + 1 , "1.rda" ) )
+load( paste0( "./" , year , "/intrvw/fmli" , yr , "1x.rda" ) )
+load( paste0( "./" , year , "/intrvw/fmli" , yr , "2.rda" ) )
+load( paste0( "./" , year , "/intrvw/fmli" , yr , "3.rda" ) )
+load( paste0( "./" , year , "/intrvw/fmli" , yr , "4.rda" ) )
+load( paste0( "./" , year , "/intrvw/fmli" , as.numeric( yr ) + 1 , "1.rda" ) )
 
 # copy the fmliYY1x data frame to another data frame 'x'
 x <- get( paste0( "fmli" , yr , "1x" ) )
@@ -495,19 +479,13 @@ expend <- expend[ order( expend$newid ) , ]
 # therefore, the following database (db) commands use sql to avoid memory issues
 
 # create a new connection to the temporary database file (defined above)
-db <- dbConnect( SQLite() , temp.db )
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 # store the family data frame in that database
 dbWriteTable( db , 'fmly' , fmly , row.names = FALSE )
 
-# create an index on the fmly table to drastically speed up future queries
-dbSendQuery( db , "CREATE INDEX nsf ON fmly ( newid , source )" )
-
 # store the expenditure data frame in that database as well
 dbWriteTable( db , 'expend' , expend , row.names = FALSE )
-
-# create an index on the expend table to drastically speed up future queries
-dbSendQuery( db , "CREATE INDEX nse ON expend ( newid , source )" )
 
 # create a character vector rcost1 - rcost45
 rcost <- paste0( "rcost" , 1:45 )
@@ -531,9 +509,6 @@ dbSendQuery(
 	sql.line
 )
   
-# create an index on the pubfile table to drastically speed up future queries
-dbSendQuery( db , "CREATE INDEX isu ON pubfile ( inclass , source , ucc )" )
-
 
 # notes from the "Integrated Mean and SE.sas" file about this section: 
 
@@ -595,10 +570,10 @@ aggright <-
 
 
 # disconnect from the temporary database (.db) file
-dbDisconnect( db )
+dbDisconnect( db , shutdown = TRUE )
 
 # delete that temporary database file from the local disk
-file.remove( temp.db )
+unlink( dbfolder , recursive = TRUE )
 
 # create three character vectors containing every combination of..
 
@@ -798,17 +773,3 @@ names( tab.out )[ 3:12 ] <-
 # ..and save to a comma separated value file on the local disk
 write.csv( tab.out , "2011 Integrated Mean and SE.csv" , row.names = FALSE )	# store the 'tab.out' data frame in a csv in the current working directory
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -29,10 +29,11 @@ get.tsv <-
 		attempt1 <- attempt2 <- NA
 		
 		# specify a temporary file on the local disk
-		cur.pums <- tempfile()
-
+		dlfile <- tempfile()
+		txt_file <- tempfile()
+		
 		# try to download the text file
-		attempt1 <- try( download.cache( fp , cur.pums , mode = 'wb' ) , silent = TRUE )
+		attempt1 <- try( download_cached( fp , dlfile , mode = 'wb' ) , silent = TRUE )
 		
 		# if the first attempt returned an error..
 		if ( class( attempt1 ) == 'try-error' ) {
@@ -41,7 +42,7 @@ get.tsv <-
 			Sys.sleep( 60 )
 			
 			# and try again
-			attempt2 <- try( download.cache( fp , cur.pums , mode = 'wb' ) , silent = TRUE )
+			attempt2 <- try( download_cached( fp , dlfile , mode = 'wb' ) , silent = TRUE )
 			
 		}	
 		
@@ -52,7 +53,7 @@ get.tsv <-
 			Sys.sleep( 120 )
 			
 			# and try one last time.
-			download.cache( fp , cur.pums , mode = 'wb' )
+			download_cached( fp , dlfile , mode = 'wb' )
 			# since there's no `try` function encapsulating this one,
 			# it will break the whole program if it doesn't work
 		}
@@ -64,13 +65,17 @@ get.tsv <-
 		# if the downloaded file was a zipped file,
 		# unzip it and replace it with its decompressed contents
 		if ( zipped ) {
-			tf <- tempfile()
-			tf <- unzip( cur.pums )
+		
+			tf_zip <- tempfile()
+		
+			tf_zip <- unzip( dlfile , exdir = tempdir() )
 			
-			# try to get rid of the file..if it's weirdly-named, who cares.
-			try( file.remove( cur.pums ) , silent = TRUE )
-					
-			cur.pums <- tf
+			txt_file <- tf_zip
+		
+		} else {
+		
+			file.copy( dlfile , txt_file )
+		
 		}
 		
 		# create two more temporary files
@@ -78,7 +83,7 @@ get.tsv <-
 		tf.person <- tempfile()
 		
 		# initiate a read-only connection to the input file
-		incon <- file( cur.pums , "r")
+		incon <- file( txt_file , "r")
 
 		# initiate two write-only file connections "w" - pointing to the household and person files
 		outcon.household <- file( tf.household , "w" )
@@ -156,15 +161,6 @@ get.tsv <-
 		close( outcon.person )
 		close( incon )
 		
-		# remove the file that was downloaded
-		
-		# file.remove sometimes needs a few seconds to cool off.
-		remove.attempt <- try( stop() , silent = TRUE )
-		while( class( remove.attempt ) == 'try-error' ){ 
-			remove.attempt <- try( file.remove( cur.pums ) , silent = TRUE )
-			Sys.sleep( 1 )
-		}
-		
 		# now we've got `tf.household` and `tf.person` on the local disk instead.
 		# these have one record per household and one record per person, respectively.
 
@@ -220,9 +216,9 @@ get.tsv <-
 # construct a function that..
 # takes a character vector full of tab-separated files stored on the local disk
 # imports them all into monetdb, merges (rectangulates) them into a merged (_m) table,
-# and finally creates a sqlsurvey design object
+# and finally creates a survey design object
 pums.import.merge.design <-
-	function( db , monet.url , fn , merged.tn , hh.tn , person.tn , hh.stru , person.stru ){
+	function( db , fn , merged.tn , hh.tn , person.tn , hh.stru , person.stru ){
 		
 		# extract the household tsv file locations
 		hh.tfs <- as.character( fn[ 1 , ] )
@@ -254,7 +250,8 @@ pums.import.merge.design <-
 			hh.tn ,
 			nrows = hh.lines ,
 			structure = hh.h ,
-			nrow.check = 10000
+			nrow.check = 10000 ,
+			lower.case.names = TRUE
 		)
 
 		# use the monet.read.tsv function
@@ -265,7 +262,8 @@ pums.import.merge.design <-
 			person.tn ,
 			nrows = person.lines ,
 			structure = person.h ,
-			nrow.check = 10000
+			nrow.check = 10000 ,
+			lower.case.names = TRUE
 		)
 		
 		# remove blank_# fields in the monetdb household table
@@ -323,39 +321,16 @@ pums.import.merge.design <-
 		dbSendQuery( db , paste0( 'alter table ' , merged.tn , ' add column one int' ) )
 		dbSendQuery( db , paste0( 'UPDATE ' , merged.tn , ' SET one = 1' ) )
 		
-		# add a column containing the record (row) number
-		dbSendQuery( db , paste0( 'alter table ' , merged.tn , ' add column idkey int auto_increment' ) )
 		
-		# store the names of factor/character variables #
-		hh.char <- hh.stru[ hh.stru$char %in% TRUE , 'variable' ]
-		person.char <- person.stru[ person.stru$char %in% TRUE , 'variable' ]
-		
-		# throw in rectype, of course
-		mergefile.factor.variables <- unique( c( hh.char , person.char , 'rectype' ) )
-
-		# finally, restrict the character vector to only columns that are actually in the merged table..
-		mffv <- 
-			intersect( 
-				dbListFields( db , merged.tn ) , 
-				mergefile.factor.variables 
-			)
-		# ..some of the blank_ columns may have been thrown out
-		
-		# end of names of factor/character variable storage #
-
-		
-		# create a sqlsurvey complex sample design object
+		# create a survey complex sample design object
 		pums.design <-
-			sqlsurvey(
-				weight = 'pweight' ,		# weight variable column
-				id = 1 ,					# sampling unit column (defined in the character string above)
-				table.name = merged.tn ,	# table name within the monet database (defined in the character string above)
-				key = "idkey" ,				# sql primary key column (created with the auto_increment line above)
-				check.factors = mffv ,		# designate all of the mergefile factor variables, in one convenient character vector
-				database = monet.url ,		# monet database location on localhost
-				driver = MonetDB.R()
+			svydesign(
+				weight = if( grepl( "1990" , merged.tn ) ) ~pwgt1 else ~pweight ,			# weight variable column
+				id = ~1 ,					# sampling unit column (defined in the character string above)
+				data = merged.tn ,			# table name within the monet database (defined in the character string above)
+				dbtype = "MonetDBLite" ,
+				dbname = dbfolder
 			)
-
 		# ..and return that at the end of the function.
 		pums.design
 	}

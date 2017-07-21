@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/AHS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/American%20Housing%20Survey/replication.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/American%20Housing%20Survey/replication.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ###########################################################################################
@@ -38,7 +29,7 @@
 # prior to running this analysis script, the ahs 2009 file must be loaded as an r data file (.rda) and  #
 # in a database (.db) on the local machine. running the download all microdata script will create both. #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/American%20Housing%20Survey/download%20all%20microdata.R #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/American%20Housing%20Survey/download%20all%20microdata.R #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will create a file "ahs.db" and './2009/national/tnewhouse_trepwgt.rda' in your getwd()   #
 #########################################################################################################
@@ -121,17 +112,3 @@ svytotal( ~one , subset( ahs.svynodb , status == 1 ) )
 # SE matches 310.859 in cell F10 of `TAB11 - Std Errs`
 svytotal( ~one , subset( ahs.svynodb , status == 1 & tenure == 1 ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

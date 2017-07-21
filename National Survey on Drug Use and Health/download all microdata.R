@@ -1,6 +1,6 @@
 # analyze survey data for free (http://asdfree.com) with the r language
 # national survey on drug use and health
-# 1979 through 2013
+# 1979 through 2014
 # all available files (including documentation)
 
 # # # # # # # # # # # # # # # # #
@@ -8,25 +8,17 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NSDUH/" )
-# # you'll need the `terms` line below.  better read the script carefully. #
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20on%20Drug%20Use%20and%20Health/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# your.username <- 'your@login.com'
+# your.password <- 'yourpassword'
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20on%20Drug%20Use%20and%20Health/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ############################################################################################
@@ -39,20 +31,24 @@
 # important user warning! #
 # # # # # # # # # # # # # #
 
-# you *must* visit this us government
-# substance abuse and mental health services administration (samhsa)
-# website and click 'agree' before running this massive download automation program
+# you *must* visit this university of michigan's inter-university consortium for political and social research
+# website and register for a username and password, then click the link in the e-mail
+# to activate your account before running this massive download automation program
 
-# this is to protect both yourself and the respondents of the study
-# http://www.icpsr.umich.edu/cgi-bin/bob/zipcart2?path=SAMHDA&study=32722
-# as a verification that you have actually read this document, you must uncomment
-# (meaning remove the # in front of) the next line.  by uncommenting this line, you affirm you have read and agree with the document:
+# this is to protect both yourself and the respondents of the study.  register here:
+# https://www.icpsr.umich.edu/cgi-bin/newacct
+# by registering, you are agreeing to the conditions of use on that page
 
-# terms <- "http://www.icpsr.umich.edu/cgi-bin/terms"
+# once you have registered, place your username and password in the script below.
+# this script will not run until a valid username and password are included in the two lines below.
+# and make sure you uncomment those two lines by removing the `#`s as well
 
-# this massive ftp download automation script will not work without the above line uncommented.
-# if the 'terms' line above is still uncommented, the script is going to break.
-# to repeat.  read the important user warning.  then uncomment that line to affirm you have read and agree with the document.
+# your.username <- 'your@login.com'
+# your.password <- 'yourpassword'
+
+# this download automation script will not work without the above lines filled in.
+# if the your.username and your.password lines above are not filled in with the details you provided at registration, 
+# the script is going to break.  to repeat.  register to access nsduh data.
 
 
 # # # # # # # # # # # # # # # # # 
@@ -72,7 +68,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "SAScii" , "httr" , "stringr" ) )
+# install.packages( c( "SAScii" , "RCurl" , "stringr" , "downloader" ) )
 
 # no need to edit anything below this line #
 
@@ -82,10 +78,11 @@
 # # # # # # # # #
 
 
-library(httr)		# load httr package (downloads files from the web, with SSL and cookies)
-library(SAScii) 	# load the SAScii package (imports ascii data with a SAS script)
-library(foreign) 	# load foreign package (converts data files into R)
-library(stringr) 	# load stringr package (manipulates character strings easily)
+library(RCurl)			# load RCurl package (downloads https files)
+library(SAScii) 		# load the SAScii package (imports ascii data with a SAS script)
+library(foreign)	 	# load foreign package (converts data files into R)
+library(stringr)	 	# load stringr package (manipulates character strings easily)
+library(downloader)		# downloads and then runs the source() function on scripts from github
 
 
 # create a temporary file
@@ -107,7 +104,7 @@ studies.by.year <-
 	
 		# the first column in this new data frame contains each available year
 		# (notice some years are not available)
-		year = c( 1979 , 1982 , 1985 , 1988, 1990:2013 ) ,
+		year = c( 1979 , 1982 , 1985 , 1988, 1990:2014 ) ,
 		
 		# the second column contains the samhda id
 		id = c( 
@@ -117,18 +114,36 @@ studies.by.year <-
 			6852 , 6949 , 6950 , 2391 , 2755 , 2934 , 3239 ,
 			# 2000 - 2006
 			3262 , 3580 , 3903 , 4138 , 4373 , 4596 , 21240 ,
-			# 2007 - 2013
-			23782 , 26701 , 29621 , 32722 , 34481 , 34933 , 35509
+			# 2007 - 2014
+			23782 , 26701 , 29621 , 32722 , 34481 , 34933 , 35509 , 36361
 		)
 	)
 
-# set the filepath of the actual web/cgi program to download
-download <- "http://www.icpsr.umich.edu/cgi-bin/bob/zipcart2"
+# load the download_cached and related functions
+# to prevent re-downloading of files once they've been downloaded.
+source_url(
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" ,
+	prompt = FALSE ,
+	echo = FALSE
+)
+
 
 # loop through each year of nsduh data available, starting with the most current first
 # the rev() function reverses the order, so instead of starting with the 1979 and finishing with 2010,
 # the program downloads 2010 first and then works backward.
 for ( i in rev( seq( nrow( studies.by.year ) ) ) ){
+
+	# initiate a curl handle so the remote server knows it's you.
+	curl = getCurlHandle()
+
+	# set a cookie file on the local disk
+	curlSetOpt(
+		cookiejar = 'cookies.txt' , 
+		followlocation = TRUE , 
+		autoreferer = TRUE , 
+		curl = curl
+	)
+
 	
 	# create a new object storing an atomic character string with only the study id
 	id <- as.character( studies.by.year[ i , "id" ] )
@@ -140,43 +155,54 @@ for ( i in rev( seq( nrow( studies.by.year ) ) ) ){
 	
 	# print the current file year to the screen
 	cat( "  current progress: preparing the nsduh" , year , "file                    " , "\r" )
+
+	# list out the filepath on the server of the file-to-download
+	dp <- paste0( "http://www.icpsr.umich.edu/cgi-bin/bob/zipcart2?study=" , id , "&ds=1&path=ICPSR" )
+		
+	# post your username and password to the umich server
+	login.page <- 
+		postForm(
+			"http://www.icpsr.umich.edu/ticketlogin" , 
+			email = your.username ,
+			password = your.password ,
+			path = "ICPSR" ,
+			request_uri = dp ,
+			style = "POST" ,
+			curl = curl 
+		)
 	
-	# create a list object containing all components necessary to inform the web/cgi program
-	# what file to actually download at any given query.  notice only the 'id' object varies between loops
-	values <- 
-		list(
-			agree = "yes" , 
-			path = "SAMHDA" , 
+	# consent to terms of use page
+	terms.of.use.page <- 
+		postForm(
+			"http://www.icpsr.umich.edu/cgi-bin/terms" , 
+			agree = 'yes' ,
+			path = "ICPSR" , 
 			study = id , 
-			ds = "" , 
-			bundle = "" , 
-			dups = "yes"
+			ds = 1 , 
+			bundle = "all" , 
+			dups = "yes" ,
+			style = "POST" ,
+			curl = curl
 		)
 
-	# accept the terms on the form, 
-	# generating the appropriate cookies
-	POST(terms, body = values)
+	# download the current stata file onto the local disk
+	this_zip <- download_cached( dp , destfile = NULL , FUN = getBinaryURL , curl = curl )
 
-	# set up guest credentials OR download the file,
-	# if GET() has already been run during this instance of R,
-	# this line will download the file straight away.
-	# otherwise, it will simply log in and need to be run again
-	resp <- GET(download, query = values)
+	# initiate a heading object
+	h <- basicHeaderGatherer()
 
-	# if the above GET() only logged in but did not download the file
-	if ( length( resp ) == 9 ){
-
-		# actually download the file (this will take a while)
-		resp <- GET(download, query = values)
-
-	}
-
-	# write the content of the download to a binary temporary file
-	writeBin( content( resp , "raw" ) , tf )
-
-	# clear up RAM no matter what
-	rm( resp ) ; gc()
-
+	# pull the filename off of the server
+	try( doc <- getURI( dp , headerfunction = h$update , curl = curl ) , silent = TRUE )
+	
+	# extract the name from that `h` object
+	lfn <- gsub( '(.*)\\"(.*)\\"' , "\\2" , h$value()[["Content-Type"]] )
+	
+	# save the actual downloaded-file to the filepath specified on the local disk
+	writeBin( this_zip , tf )
+	
+	# remove the zipped file from RAM
+	rm( this_zip ) ; gc()
+	
 	# unzip the contents of the stata file into the current working directory
 	unzip( tf )
 
@@ -330,17 +356,3 @@ for ( i in rev( seq( nrow( studies.by.year ) ) ) ){
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste( "all done.  you should set" , getwd() , "read-only so you don't accidentally alter these files." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

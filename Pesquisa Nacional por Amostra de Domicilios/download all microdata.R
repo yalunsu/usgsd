@@ -1,6 +1,6 @@
 # analyze survey data for free (http://asdfree.com) with the r language
 # pesquisa nacional por amostra de domicilios
-# 2001 - 2013
+# 2001 - 2014
 
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
@@ -8,16 +8,13 @@
 # options( encoding = "windows-1252" )		# # only macintosh and *nix users need this line
 # library(downloader)
 # setwd( "C:/My Directory/PNAD/" )
-# years.to.download <- c( 2001:2009 , 2011:2013 )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# years.to.download <- c( 2001:2009 , 2011:2015 )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # djalma pessoa
 # pessoad@gmail.com
@@ -25,20 +22,14 @@
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
 
 ###################################################################################
-# Analyze the 2001 - 2013 Pesquisa Nacional por Amostra de Domicilios file with R #
+# Analyze the 2001 - 2015 Pesquisa Nacional por Amostra de Domicilios file with R #
 ###################################################################################
 
 
 # set your working directory.
-# the PNAD 2001 - 2013 data files will be stored here
+# the PNAD 2001 - 2015 data files will be stored here
 # after downloading and importing them.
 # use forward slashes instead of back slashes
 
@@ -59,14 +50,13 @@ if ( .Platform$OS.type != 'windows' ) print( 'non-windows users: read this block
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "survey" , "RSQLite" , "SAScii" , "descr" , "downloader" , "stringr" ) )
-
+# install.packages( c( "MonetDBLite" , "survey" , "SAScii" , "descr" , "downloader" , "digest" , "stringr" , "R.utils" ) )
 
 # define which years to download #
 
 # uncomment this line to download all available data sets
 # uncomment this line by removing the `#` at the front
-# years.to.download <- c( 2001:2009 , 2011:2013 )
+# years.to.download <- c( 2001:2009 , 2011:2015 )
 
 # uncomment this line to download only a single year
 # years.to.download <- 2011
@@ -75,8 +65,8 @@ if ( .Platform$OS.type != 'windows' ) print( 'non-windows users: read this block
 # years.to.download <- c( 2009:2007 , 2005 )
 
 
-# name the database (.db) file to be saved in the working directory
-pnad.dbname <- "pnad.db"
+# name the database files in the "MonetDB" folder of the current working directory
+pnad.dbfolder <- paste0( getwd() , "/MonetDB" )
 
 
 ############################################
@@ -86,45 +76,47 @@ pnad.dbname <- "pnad.db"
 # program start #
 # # # # # # # # #
 
-# if the pnad database file already exists in the current working directory, print a warning
-if ( file.exists( paste( getwd() , pnad.dbname , sep = "/" ) ) ) warning( "the database file already exists in your working directory.\nyou might encounter an error if you are running the same year as before or did not allow the program to complete.\ntry changing the pnad.dbname in the settings above." )
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
+library(SAScii) 		# load the SAScii package (imports ascii data with a SAS script)
+library(descr) 			# load the descr package (converts fixed-width files to delimited files)
+library(downloader)		# downloads and then runs the source() function on scripts from github
+library(R.utils)		# load the R.utils package (counts the number of lines in a file quickly)
 
 
-library(RSQLite) 	# load RSQLite package (creates database files in R)
-library(SAScii) 	# load the SAScii package (imports ascii data with a SAS script)
-library(descr) 		# load the descr package (converts fixed-width files to delimited files)
-library(downloader)	# downloads and then runs the source() function on scripts from github
+# this script's download files should be incorporated in download_cached's hash list
+options( "download_cached.hashwarn" = TRUE )
+# warn the user if the hash does not yet exist
 
-
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
 
 
-# load the read.SAScii.sqlite function (a variant of read.SAScii that creates a database directly)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/SQLite/read.SAScii.sqlite.R" , prompt = FALSE )
+# load the read.SAScii.monetdb function (a variant of read.SAScii that creates a database directly)
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/MonetDB/read.SAScii.monetdb.R" , prompt = FALSE )
 
 # load pnad-specific functions (to remove invalid SAS input script fields and postStratify a database-backed survey object)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa Nacional por Amostra de Domicilios/pnad.survey.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/pnad.survey.R" , prompt = FALSE )
 
 
 
 # create a temporary file and a temporary directory..
 tf <- tempfile() ; td <- tempdir()
 
-# open the connection to the sqlite database
-db <- dbConnect( SQLite() , pnad.dbname )
+# open the connection to the monetdblite database
+db <- dbConnect( MonetDBLite::MonetDBLite() , pnad.dbfolder )
 
 
 # download and import the tables containing missing codes
-download( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/household_nr.csv" , tf )
+download( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/household_nr.csv" , tf )
 household.nr <- read.csv( tf , colClasses = 'character' )
 
-download( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/person_nr.csv" , tf )
+download( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/person_nr.csv" , tf )
 person.nr <- read.csv( tf , colClasses = 'character' )
 
 # convert these tables to lowercase
@@ -160,12 +152,12 @@ for ( year in years.to.download ){
 		ftp.path <-
 			paste0(
 				"ftp://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_anual/microdados/reponderacao_2001_2012/PNAD_reponderado_" ,
-				year ,
+				year , if( year %in% c( 2003 , 2007 , 2009:2012 ) ) "_20150814" ,
 				".zip"
 			)
 
 		# download the data and sas importation instructions all at once..
-		download.cache( ftp.path , tf , mode = "wb" )
+		download_cached( ftp.path , tf , mode = "wb" )
 		
 		# ..then also unzip them into the temporary directory
 		files <- unzip( tf , exdir = td )
@@ -187,10 +179,16 @@ for ( year in years.to.download ){
 		# loop through each of the files you might need
 		for ( this.file in c( "Dados.zip" , "Dicionarios_e_input.zip" ) ) {
 		
+			if ( year == 2013 & this.file == "Dicionarios_e_input.zip" ) this.file <- "Dicionarios_e_input_20150814.zip"
+		
+			if( year == 2014 ) this.file <- gsub( "\\.zip" , "_20161116.zip" , this.file )
+			if( year == 2015 ) this.file <- gsub( "\\.zip" , "_20170517.zip" , this.file )
+	
+		
 			try({
 				
 				# give downloading 'em a shot
-				download.cache( paste0( ftp.path , this.file ) , tf , mode = 'wb' )
+				download_cached( paste0( ftp.path , this.file ) , tf , mode = 'wb' )
 				
 				# unzip them into the same place
 				files <- c( files , unzip( tf , exdir = td ) )
@@ -202,46 +200,161 @@ for ( year in years.to.download ){
 	}
 
 	# manually set the encoding of the unziped files so they don't break things.
-	Encoding( files ) <- 'UTF-8'
+	if( year %in% 2013:2014 & .Platform$OS.type != 'windows' ) Encoding( files ) <- 'UTF-8' else Encoding( files ) <- 'latin1'
 	
-	# remove the UF column and the mistake with "LOCAL ÚLTIMO FURTO"
+	
+	# remove the UF column and the mistake with "LOCAL ÃšLTIMO FURTO"
 	# described in the remove.uf() function that was loaded with source_url as pnad.survey.R
 	dom.sas <- remove.uf( files[ grepl( paste0( 'input[^?]dom' , year , '.txt' ) , tolower( files ) ) ] )
 	pes.sas <- remove.uf( files[ grepl( paste0( 'input[^?]pes' , year , '.txt' ) , tolower( files ) ) ] )
 
+	# in 2003 and 2007, the age variable had been read in as a factor variable
+	# which breaks certain commands by treating the variable incorrectly as a factor
+	if( year %in% c( 2003 , 2007 ) ){
+		pes_lines <- readLines( pes.sas )
+		pes_lines <- gsub( "@00027( *)V8005( *)\\$3\\." , "@00027 V8005 3\\." , pes_lines )
+		writeLines( pes_lines , pes.sas )
+	}
+	
 	# since `files` contains multiple file paths,
 	# determine the filepath on the local disk to the household (dom) and person (pes) files
-	dom.fn <- files[ grepl( paste0( 'dados/dom' , year ) , tolower( files ) ) ]
-	pes.fn <- files[ grepl( paste0( 'dados/pes' , year ) , tolower( files ) ) ]
+	dom.fn <- files[ grepl( paste0( '/dom' , year ) , tolower( files ) ) ]
+	pes.fn <- files[ grepl( paste0( '/pes' , year ) , tolower( files ) ) ]
 
-	# store the PNAD household records as a SQLite database
-	read.SAScii.sqlite ( 
-		dom.fn , 
-		dom.sas , 
-		zipped = F , 
-		tl = TRUE ,
-		# this default table naming setup will name the household-level tables dom2001, dom2002, dom2003 and so on
-		tablename = paste0( 'dom' , year ) ,
-		conn = db
-	)
+	first_attempt_dom <- 
+		try({
+			# store the PNAD household records as a MonetDBLite database
+			read.SAScii.monetdb ( 
+				dom.fn , 
+				dom.sas , 
+				zipped = F , 
+				tl = TRUE ,
+				# this default table naming setup will name the household-level tables dom2001, dom2002, dom2003 and so on
+				tablename = paste0( 'dom' , year ) ,
+				conn = db
+			)
+
+			} , silent = TRUE )
 	
-	# store the PNAD person records as a SQLite database
-	read.SAScii.sqlite ( 
-		pes.fn , 
-		pes.sas , 
-		zipped = F , 
-		tl = TRUE ,
-		# this default table naming setup will name the person-level tables pes2001, pes2002, pes2003 and so on
-		tablename = paste0( 'pes' , year ) ,
-		conn = db
-	)
+	# if the read.SAScii.monetdb attempts broke,
+	# remove the dots in the files
+	# and try again
+	if( class( first_attempt_dom ) == 'try-error' ){
+			
+		dom.fn2 <- tempfile()
+		fpx <- file( normalizePath( dom.fn ) , 'r' )
+		# create a write-only file connection to the temporary file
+		fpt <- file( dom.fn2 , 'w' )
 
+		# loop through every line in the original file..
+		while ( length( line <- readLines( fpx , 1 ) ) > 0 ){
+		
+			# replace '.' with nothings..
+			line <- gsub( " ." , "  " , line , fixed = TRUE )
+			line <- gsub( ". " , "  " , line , fixed = TRUE )
+			
+			# and write the result to the temporary file connection
+			writeLines( line , fpt )
+		}
+		
+		# close the temporary file connection
+		close( fpx )
+		close( fpt )
+
+		# store the PNAD household records as a MonetDBLite database
+		read.SAScii.monetdb ( 
+			dom.fn2 , 
+			dom.sas , 
+			zipped = F , 
+			tl = TRUE ,
+			# this default table naming setup will name the household-level tables dom2001, dom2002, dom2003 and so on
+			tablename = paste0( 'dom' , year ) ,
+			conn = db
+		)
+		
+		files <- c( files , dom.fn2 )
+		
+		stopifnot( countLines( dom.fn ) == dbGetQuery( db , paste0( "SELECT COUNT(*) FROM dom" , year ) )[ 1 , 1 ] )
+		
+	}
+	
+	first_attempt_pes <- 
+		try({
+		
+			# store the PNAD person records as a MonetDBLite database
+			read.SAScii.monetdb ( 
+				pes.fn , 
+				pes.sas , 
+				zipped = F , 
+				tl = TRUE ,
+				# this default table naming setup will name the person-level tables pes2001, pes2002, pes2003 and so on
+				tablename = paste0( 'pes' , year ) ,
+				conn = db
+			)
+	
+		} , silent = TRUE )
+	
+	# if the read.SAScii.monetdb attempts broke,
+	# remove the dots in the files
+	# and try again
+	if( class( first_attempt_pes ) == 'try-error' ){
+
+		pes.fn2 <- tempfile()
+		
+		fpx <- file( normalizePath( pes.fn ) , 'r' )
+		# create a write-only file connection to the temporary file
+		fpt <- file( pes.fn2 , 'w' )
+
+		# loop through every line in the original file..
+		while ( length( line <- readLines( fpx , 1 ) ) > 0 ){
+		
+			# replace '.' with nothings..
+			line <- gsub( " ." , "  " , line , fixed = TRUE )
+			line <- gsub( ". " , "  " , line , fixed = TRUE )
+			line <- gsub( "\U00A0" , " " , line )
+
+			# and write the result to the temporary file connection
+			writeLines( line , fpt )
+		}
+		
+		# close the temporary file connection
+		close( fpx )
+		close( fpt )
+		
+	
+		# store the PNAD person records as a MonetDBLite database
+		read.SAScii.monetdb ( 
+			pes.fn2 , 
+			pes.sas , 
+			zipped = F , 
+			tl = TRUE ,
+			# this default table naming setup will name the person-level tables pes2001, pes2002, pes2003 and so on
+			tablename = paste0( 'pes' , year ) ,
+			conn = db
+		)
+
+		files <- c( files , pes.fn2 )
+		
+		stopifnot( countLines( pes.fn ) == dbGetQuery( db , paste0( "SELECT COUNT(*) FROM pes" , year ) )[ 1 , 1 ] )
+		
+	}
+			
 	# the ASCII and SAS importation instructions stored in temporary files
 	# on the local disk are no longer necessary, so delete them.
 	attempt.one <- try( file.remove( files ) , silent = TRUE )
 	# weird brazilian file encoding operates differently on mac+*nix versus windows, so try both ways.
 	if( class( attempt.one ) == 'try-error' ) { Encoding( files ) <- '' ; file.remove( files ) }
 	
+	# add 4617 and 4618 to 2001 file
+	if( year == 2001 ){
+	
+		dbSendQuery( db , "ALTER TABLE dom2001 ADD COLUMN v4617 real" )
+		dbSendQuery( db , "ALTER TABLE dom2001 ADD COLUMN v4618 real" )
+	
+		dbSendQuery( db , "UPDATE dom2001 SET v4617 = strat" )
+		dbSendQuery( db , "UPDATE dom2001 SET v4618 = psu" )
+		
+	}
 	
 	# missing level blank-outs #
 	# this section loops through the non-response values & variables for all years
@@ -259,7 +372,7 @@ for ( year in years.to.download ){
 			# ..and the variable should be recoded for that year
 			if( year %in% eval( parse( text = household.nr[ curRow , 'year' ] ) ) ){
 		
-				# update all variables where that code equals the `missing` code to NA (NULL in SQLite)
+				# update all variables where that code equals the `missing` code to NA (NULL in MonetDBLite)
 				dbSendQuery( 
 					db , 
 					paste0( 
@@ -287,7 +400,7 @@ for ( year in years.to.download ){
 			# ..and the variable should be recoded for that year
 			if( year %in% eval( parse( text = person.nr[ curRow , 'year' ] ) ) ){
 		
-				# update all variables where that code equals the `missing` code to NA (NULL in SQLite)
+				# update all variables where that code equals the `missing` code to NA (NULL in MonetDBLite)
 				dbSendQuery( 
 					db , 
 					paste0( 
@@ -306,13 +419,8 @@ for ( year in years.to.download ){
 		}
 	}
 
-	
-	# create indexes to speed up the merge of the household- and person-level files.
-	dbSendQuery( db , paste0( "CREATE INDEX pes_index" , year , " ON pes" , year , " ( v0101 , v0102 , v0103 )" ) )
-	dbSendQuery( db , paste0( "CREATE INDEX dom_index" , year , " ON dom" , year , " ( v0101 , v0102 , v0103 )" ) )
-
-	# clear up RAM
-	gc()
+	# confirm no fields are in `dom` unless they are in `pes`
+	b_fields <- dbListFields( db , paste0( 'dom' , year ) )[ !( dbListFields( db , paste0( 'dom' , year ) ) %in% dbListFields( db , paste0( 'pes' , year ) ) ) ]
 	
 	# create the merged file
 	dbSendQuery( 
@@ -324,8 +432,10 @@ for ( year in years.to.download ){
 			# also add a new column "one" that simply contains the number 1 for every record in the data set
 			# also add a new column "uf" that contains the state code, since these were thrown out of the SAS script
 			# also add a new column "region" that contains the larger region, since these are shown in the tables
-			# NOTE: the substr() function luckily works in SQLite() databases, but may not work if you change SQL database engines to something else.
-			" as select * , 1 as one , substr( a.v0102 , 1 , 2 ) as uf , substr( a.v0102 , 1 , 1 ) as region from pes" , 
+			# NOTE: the substr() function luckily works in MonetDBLite::MonetDBLite() databases, but may not work if you change SQL database engines to something else.
+			" as select a.* , " ,
+			paste( b_fields , collapse = "," ) ,
+			" , 1 as one , substr( a.v0102 , 1 , 2 ) as uf , substr( a.v0102 , 1 , 1 ) as region from pes" , 
 			year , 
 			" as a inner join dom" , 
 			year , 
@@ -348,8 +458,12 @@ for ( year in years.to.download ){
 	# now create the pre-stratified weight to be used in all of the survey designs
 	# if it's not in there, copy it over
 	dbSendQuery( db , paste0( 'alter table pnad' , year , ' add column pre_wgt real' ) )
-	dbSendQuery( db , paste0( 'update pnad' , year , ' set pre_wgt = v4619 * v4610' ) )
-	
+
+	if( year < 2004 ){
+		dbSendQuery( db , paste0( 'update pnad' , year , ' set pre_wgt = v4610' ) )
+	} else {
+		dbSendQuery( db , paste0( 'update pnad' , year , ' set pre_wgt = v4619 * v4610' ) )	
+	}
 	
 	# confirm that the number of records in the pnad merged file
 	# matches the number of records in the person file
@@ -361,29 +475,12 @@ for ( year in years.to.download ){
 	
 }
 
-# take a look at all the new data tables that have been added to your RAM-free SQLite database
+# take a look at all the new data tables that have been added to your RAM-free MonetDBLite database
 dbListTables( db )
 
 # disconnect from the current database
-dbDisconnect( db )
+dbDisconnect( db , shutdown = TRUE )
 
 # remove the temporary file from the local disk
 file.remove( tf )
 
-# print a reminder: set the directory you just saved everything to as read-only!
-message( paste0( "all done.  you should set the file " , file.path( getwd() , pnad.dbname ) , " read-only so you don't accidentally alter these tables." ) )
-
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

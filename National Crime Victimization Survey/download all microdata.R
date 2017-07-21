@@ -10,25 +10,17 @@
 # setwd( "C:/My Directory/NCVS/" )
 # your.username <- 'your@login.com'
 # your.password <- 'yourpassword'
-# rm( studies.to.download ) # or pick a few # studies.to.download <- c( "2003 Record-Type Files" , "2012 Identity Theft Supplement" , "1995 School Crime Supplement" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Crime%20Victimization%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# options( encoding = "windows-1252" )				# # only macintosh and *nix users need this line
+# rm( studies.to.download ) 						# or pick a few # studies.to.download <- c( "2003 Record-Type Files" , "2012 Identity Theft Supplement" , "1995 School Crime Supplement" )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Crime%20Victimization%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ####################################################################################
@@ -76,20 +68,30 @@
 # ..in order to set your current working directory
 
 
+# # # are you on a non-windows system? # # #
+if ( .Platform$OS.type != 'windows' ) print( 'non-windows users: read this block' )
+# a few SAS importation scripts have a non-standard format
+# before running this whole download program,
+# you might need to run this line..
+# options( encoding="windows-1252" )
+# ..to turn on windows-style encoding.
+# # # end of non-windows system edits.
+
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "SAScii" , "RCurl" , "RSQLite" , "descr" , "downloader" , "R.utils" , "stringr" ) )
+# install.packages( c( "MonetDBLite" , "survey" , "SAScii" , "descr" , "downloader" , "digest" , "stringr" , "R.utils" , "RCurl" ) )
 
 
 
-library(SAScii) 	# load the SAScii package (imports ascii data with a SAS script)
-library(RCurl)		# load RCurl package (downloads https files)
-library(stringr)	# load stringr package (manipulates character strings easily)
-library(downloader)	# downloads and then runs the source() function on scripts from github
-library(RSQLite)	# load RSQLite package (creates database files in R)
-library(descr)		# load the descr package (converts fixed-width files to delimited files)
-library(R.utils)	# load the R.utils package (counts the number of lines in a file quickly)
-library(foreign)	# load foreign package (converts data files into R)
+library(SAScii) 		# load the SAScii package (imports ascii data with a SAS script)
+library(RCurl)			# load RCurl package (downloads https files)
+library(stringr)		# load stringr package (manipulates character strings easily)
+library(downloader)		# downloads and then runs the source() function on scripts from github
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
+library(descr)			# load the descr package (converts fixed-width files to delimited files)
+library(R.utils)		# load the R.utils package (counts the number of lines in a file quickly)
+library(foreign)		# load foreign package (converts data files into R)
 
 
 # follow the authentication technique described on this stackoverflow post
@@ -99,9 +101,20 @@ library(foreign)	# load foreign package (converts data files into R)
 # create a temporary file
 tf <- tempfile()
 
+# this script's download files should be incorporated in download_cached's hash list
+options( "download_cached.hashwarn" = TRUE )
+# warn the user if the hash does not yet exist
 
-# load the read.SAScii.sqlite function (a variant of read.SAScii that creates a database directly)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/SQLite/read.SAScii.sqlite.R" , prompt = FALSE )
+# load the download_cached and related functions
+# to prevent re-downloading of files once they've been downloaded.
+source_url(
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" ,
+	prompt = FALSE ,
+	echo = FALSE
+)
+
+# load the read.SAScii.monetdb function (a variant of read.SAScii that creates a database directly)
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/MonetDB/read.SAScii.monetdb.R" , prompt = FALSE )
 
 # download the contents of the webpage hosting all ncvs data files
 all.ncvs.studies <- getURL( "http://www.icpsr.umich.edu/icpsrweb/NACJD/series/95/studies?archive=NACJD&q=&paging.rows=10000&sortBy=7" )
@@ -160,6 +173,8 @@ print( study.names )
 # no need to edit anything below this line #
 
 
+
+
 # if the object `studies.to.download` exists in working memory..
 if ( exists( "studies.to.download" ) ){
 
@@ -173,6 +188,19 @@ if ( exists( "studies.to.download" ) ){
 	numbers.to.download <- seq_along( study.names )
 
 }
+
+
+
+# this 2009 protective behaviors supplement does not have data, only programming source code
+numbers.to.download <- numbers.to.download[ numbers.to.download != which( study.names ==  "2009 Protective Behaviors of Student Victims of Bullying A Rare Events Analysis of the School Crime Supplement to the" ) ]
+
+
+# name the database files in the "MonetDB" folder of the current working directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
+
+
+# open the connection to the monetdblite database
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 
 # loop through all study numbers deemed download-worthy
@@ -208,7 +236,7 @@ for ( i in numbers.to.download ){
 		dp <- paste0( "http://www.icpsr.umich.edu/cgi-bin/" , j )
 		
 		# download the current document
-		this.doc <- getBinaryURL( dp )
+		this.doc <- download_cached( dp , destfile = NULL , FUN = getBinaryURL )
 	
 		# initiate a header
 		h <- basicHeaderGatherer()
@@ -264,11 +292,12 @@ for ( i in numbers.to.download ){
 		# post your username and password to the umich server
 		login.page <- 
 			postForm(
-				"http://www.icpsr.umich.edu/ticketlogin" , 
+				"https://www.icpsr.umich.edu/rpxlogin" , 
 				email = your.username ,
 				password = your.password ,
 				path = "NACJD" ,
 				request_uri = dp ,
+				app_seq = "" ,
 				style = "POST" ,
 				curl = curl 
 			)
@@ -288,7 +317,7 @@ for ( i in numbers.to.download ){
 			)
 	
 		# download the current sas file onto the local disk
-		this.sas_ri <- getBinaryURL( dp , curl = curl )
+		this.sas_ri <- download_cached( dp , destfile = NULL , FUN = getBinaryURL , curl = curl )
 
 		# initiate a heading object
 		h <- basicHeaderGatherer()
@@ -327,37 +356,42 @@ for ( i in numbers.to.download ){
 			if ( grepl( "gz$" , tolower( data.file ) ) ){
 			
 				# gunzip it and overwrite itself in the current directory
-				data.file <- gunzip( data.file , exdir = dirname( data.file ) )
+				data.file <- gunzip( data.file )
 				
 			}
 			
 			# let the user/viewer know whatcha doin'
 			print( paste( "currently importing" , data.file ) )
 			
-			# initiate a sqlite database for this file on your local computer
-			db <- dbConnect( SQLite() , gsub( "txt$" , "db" , data.file ) )
-
 			# in most cases, the sas importation script should start right at the beginning..
 			beginline <- 1
 			
 			# ..but hardcode the beginline for a few scripts
 			if ( j == "terms2?study=4429&ds=1&bundle=ascsas&path=NACJD" & study.names[ i ] == "2005 School Crime Supplement" ) beginline <- 794
+			
+			# skip one goofy line in the 2005 ppcs #
+			if( study.names[ i ] == "2005 Police-Public Contact Survey" ) tbe <- TRUE else tbe <- FALSE
 			# end of hardcoding
 			
+			tablename <- gsub( "-" , "_" , tolower( basename( data.file ) ) )
+			tablename <- gsub( "(.*)\\.(.*)" , "\\1" , tablename )
+			tablename <- gsub( "_data" , "" , tablename )
+			tablename <- paste0( 'x' , tablename )
+			
 			# read the data file into an r sqlite database
-			read.SAScii.sqlite(
+			read.SAScii.monetdb(
 				fn = data.file ,
 				sas_ri = sas.import ,
 				tl = TRUE ,	# convert all column names to lowercase?
-				tablename = "x" ,
+				tablename = tablename ,
 				beginline = beginline ,
 				skip.decimal.division = TRUE ,
-				conn = db
+				conn = db ,
+				try_best_effort = tbe
 			)
-
-			# clear up empty space in the database
-			dbSendQuery( db , 'VACUUM' )
-
+			
+			
+			gc()
 			
 			# figure out which variables need to be recoded to system missing #
 			
@@ -401,13 +435,19 @@ for ( i in numbers.to.download ){
 				recodes <- recodes[ recodes != '' ]
 				
 				# find which variables need to be replaced by extracting whatever's directly in front of the equals sign
-				vtr <- str_trim( tolower( gsub( "(.*) THEN( ?)(.*)( ?)=(.*)" , "\\3" , recodes ) ) )
-				
+				pre_vtr <- vtr <- str_trim( tolower( gsub( "(.*) THEN( ?)(.*)( ?)=(.*)" , "\\3" , recodes ) ) )
+
+				# reserved words have been recoded within `read.SAScii.monetdb` and need to be recoded here as well
+				for ( j in vtr[ vtr %in% tolower( MonetDBLite:::reserved_monetdb_keywords ) ] ) vtr[ vtr == j ] <- paste0( j , "_" )
+
 				# remove everything after the `THEN` block..
 				ptm <- gsub( " THEN( ?)(.*)" , "" , recodes )
 				
 				# ..to create a vector of patterns to match
 				ptm <- tolower( str_trim( ptm ) )
+				
+				# reserved words have been recoded within `read.SAScii.monetdb` and need to be recoded here as well
+				for ( j in intersect( pre_vtr , tolower( MonetDBLite:::reserved_monetdb_keywords ) ) ) ptm <- gsub( j , paste0( j , "_" ) , ptm )
 				
 				# hardcode weird sas import file
 				if( study.names[ i ] == "1995 School Crime Supplement" & ptm[ 1 ] == "/* v9=9" ) ptm[ 1 ] <- "v9=9"
@@ -420,20 +460,19 @@ for ( i in numbers.to.download ){
 			# this loop assumes you have less than 4GB of RAM, so tables with more
 			# than 100,000 records will not automatically get read in unless you comment
 			# out this `if` block by adding `#` in front of this line and the accompanying `}`
-			if ( dbGetQuery( db , 'select count(*) from x' )[ 1 , 1 ] < 100000 ){
+			if ( dbGetQuery( db , paste0( 'select count(*) from ' , tablename ) )[ 1 , 1 ] < 100000 ){
 				
 				# pull the data file into working memory
-				x <- dbReadTable( db , 'x' )
+				x <- dbReadTable( db , tablename )
 			
+				print( paste( "revising" , tablename ) )
+				
 				# if there are any missing values to recode
 				if ( length( mvr ) == 1 ){
 				
 					# loop through each variable to recode
 					for ( k in seq_along( vtr ) ){
 				
-						# print current progress, since this takes oh so long
-						cat( "blanking out missings of variable" , vtr[ k ] , "..." , k , "of" , length( vtr ) , '                 \r' )
-						
 						# overwrite sas syntax with r syntax in the patterns to match commands.
 						r.command <- gsub( "=" , "==" , ptm[ k ] )
 						r.command <- gsub( " or " , "|" , r.command )
@@ -452,16 +491,16 @@ for ( i in numbers.to.download ){
 					}
 					
 					# remove the current data table from the database
-					dbRemoveTable( db , 'x' )
+					dbRemoveTable( db , tablename )
 					
 					# ..and overwrite it with the data.frame object
 					# that you've just blessedly cleaned up
-					dbWriteTable( db , 'x' , x )
+					dbWriteTable( db , tablename , x )
 
 				}
 				
 				# save the r data.frame object to the local disk as an `.rda`
-				save( x , file = gsub( "txt$" , "rda" , data.file ) )
+				save( x , file = gsub( "\\-Data\\.txt$" , "rda" , data.file ) )
 			
 				# remove the object from working memory
 				rm( x )
@@ -472,21 +511,17 @@ for ( i in numbers.to.download ){
 								
 				# if there are any variables that need system missing-ing
 				if( length( mvr ) == 1 ){
-				
-					# tell the sqlite database you're sending in a bunch of commands at once
-					dbBeginTransaction( db )
-					
+						
 					# loop through each variable to recode
 					for ( k in seq_along( vtr ) ){
 					
-						# print your progress, again, this takes a whiiiiiile
-						cat( "blanking out missings of variable" , vtr[ k ] , "..." , k , "of" , length( vtr ) , '                 \r' )
-						
 						# update the current data table's variable-to-replace (vtr) with missing (NULL) whenever the pattern-to-match is matched.
 						dbSendQuery( 
 							db , 
 							paste(
-								"UPDATE x SET" ,
+								"UPDATE" , 
+								tablename , 
+								"SET" ,
 								vtr[ k ] ,
 								" = NULL WHERE" ,
 								ptm[ k ]
@@ -495,10 +530,6 @@ for ( i in numbers.to.download ){
 						
 					}
 					
-					# once all system missings have been overwritten with missing,
-					# save those changes in the r sqlite database
-					dbCommit( db )
-				
 				}
 				
 			}
@@ -508,24 +539,13 @@ for ( i in numbers.to.download ){
 		# clear up RAM	
 		gc()
 			
-		# disconnect from the current sqlite database
-		dbDisconnect( db )
-	
 	}
 	
 }
 
 
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
+# take a look at all the new data tables that have been added to your RAM-free MonetDBLite database
+dbListTables( db )
 
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico
+# disconnect from the current database
+dbDisconnect( db , shutdown = TRUE )

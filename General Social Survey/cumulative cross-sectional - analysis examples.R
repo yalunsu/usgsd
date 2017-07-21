@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/GSS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/General%20Social%20Survey/cumulative%20cross-sectional%20-%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/General%20Social%20Survey/cumulative%20cross-sectional%20-%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 #################################################################################
@@ -72,7 +63,7 @@ library(survey)  # load survey package (analyzes complex design surveys)
 # create new character variables containing the full filepath of the file on norc's website
 # that needs to be downloaded and imported into r for analysis
 GSS.CS.file.location <-
-	"http://publicdata.norc.org/GSS/DOCUMENTS/OTHR/GSS_spss.zip"
+	"http://gss.norc.org/documents/spss/GSS_spss.zip"
 
 
 # create a temporary file and a temporary directory
@@ -468,17 +459,3 @@ barplot(
 	cex.names = .5										# shrink the column labels so they all fit
 )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

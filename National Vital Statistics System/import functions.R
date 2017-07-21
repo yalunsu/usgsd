@@ -43,9 +43,12 @@ import.nchs <-
 		files.to.import ,
 		sas.scripts ,
 		db ,
-		force.length = FALSE
+		force.length = FALSE ,
+		azr = FALSE
 	){
 
+		gc()
+	
 		# figure out tablename from the files.to.import
 		tablenames <-
 			gsub( "./" , "" , files.to.import , fixed = TRUE )
@@ -76,12 +79,15 @@ import.nchs <-
 				tl = TRUE ,						# convert all column names to lowercase?
 				tablename = tablenames[ i ] ,
 				overwrite = FALSE ,				# overwrite existing table?
-				connection = db
+				connection = db ,
+				allow_zero_records = azr
 			)
 			
 			suppressWarnings( while( unlink( fti ) ) Sys.sleep( 1 ) )
 			
 		}
+		
+		gc()
 		
 		TRUE
 	}
@@ -202,8 +208,13 @@ remove.overlap <-
 	function( sasfile ){
 		sas_lines <- tolower( readLines( sasfile ) )
 
+		sas_lines <- sas_lines[ sas_lines != "@119  fipssto           $2. " ]
+		sas_lines <- sas_lines[ sas_lines != "@124  fipsstr           $2. " ]
+		
 		sas_lines <- gsub( "@214 ucr130 3." , "@214 ucr130 $ 3." , sas_lines )
 		
+		sas_lines <- gsub( "@107  mrace6             2" , "@107  mrace6             1" , sas_lines )
+		sas_lines <- gsub( "@9    dob_yy             4" , "@1 BLANK $8  @9    dob_yy             4" , sas_lines )
 		sas_lines <- gsub( "@7    revision" , "@1    BLANK $6 @7    revision" , sas_lines )
 		sas_lines <- gsub( "@4    reparea        1." , "@4    reparea        $1" , sas_lines )
 		
@@ -269,7 +280,7 @@ download.nchs <-
 			if ( curYear < 50 ) curYear <- curYear + 2000
 			if ( curYear > 50 & curYear < 100 ) curYear <- curYear + 1900
 			
-			download.cache( i , tf , mode = 'wb' )
+			download_cached( i , tf , mode = 'wb' )
 			
 			# actually run winrar on the downloaded file,
 			# extracting the results to the temporary directory
@@ -280,7 +291,7 @@ download.nchs <-
 				dos.command <- paste0( '"' , path.to.winrar , '" x ' , tf , ' ' , winrar.dir )
 				shell( dos.command ) 
 			} else {
-				sys.command <- paste( "unzip" , tf , "-d" , winrar.dir )
+				sys.command <- paste0( '"' , path.to.7z , '" x ' , tf , ' -o"' , winrar.dir , '"' )
 				system( sys.command )
 			}
 
@@ -349,12 +360,12 @@ download.nchs <-
 			# wait one minute before each download
 			Sys.sleep( 60 )
 				
-			attempt.one <- try( download.cache( i , paste( "." , y$name , basename( i ) , sep = "/" ) , mode = 'wb' ) , silent = TRUE )
+			attempt.one <- try( download_cached( i , paste( "." , y$name , basename( i ) , sep = "/" ) , mode = 'wb' ) , silent = TRUE )
 			
 			if ( class( attempt.one ) == 'try-error' ) {
 				Sys.sleep( 60 )
 				
-				download.cache( i , paste( "." , y$name , basename( i ) , sep = "/" ) , mode = 'wb' )
+				download_cached( i , paste( "." , y$name , basename( i ) , sep = "/" ) , mode = 'wb' )
 			}
 		}
 			

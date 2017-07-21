@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NHIS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Health%20Interview%20Survey/2011%20personsx%20-%20analyze.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Health%20Interview%20Survey/2011%20personsx%20-%20analyze.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -33,7 +24,7 @@
 # prior to running this analysis script, the nhis 2011 personsx file must be loaded as an R data file (.rda) on the local machine.  #
 # running the "1963-2011 - download all microdata.R" script will create this R data file (note: only 2011 files need to be loaded)  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/National%20Health%20Interview%20Survey/1963-2011%20-%20download%20all%20microdata.R #
+# https://github.com/ajdamico/asdfree/blob/master/National%20Health%20Interview%20Survey/1963-2011%20-%20download%20all%20microdata.R #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will create a file "/2011/personsx.rda" in C:/My Directory/NHIS (or wherever the working directory was chosen)        #
 #####################################################################################################################################
@@ -325,17 +316,3 @@ barplot(
 	ylim = c( 0 , .25 )
 )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

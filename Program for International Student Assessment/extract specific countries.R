@@ -5,99 +5,46 @@
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
 # # # # # # # # # # # # # # # # #
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
 # library(downloader)
-# batfile <- "C:/My Directory/PISA/MonetDB/pisa.bat"		# # note for mac and *nix users: `pisa.bat` might be `pisa.sh` instead
 # setwd( "C:/My Directory/PISA/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Program%20for%20International%20Student%20Assessment/extract%20specific%20countries.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Program%20for%20International%20Student%20Assessment/extract%20specific%20countries.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
 
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-###########################################################################################################################################
-# prior to running this analysis script, the pisa 2009 multiply-imputed tables must be loaded as a monet-backed sqlsurvey object on the   #
-# local machine. running the download, import, and design script will create a monetdb-backed multiply-imputed database with whatcha need #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# "https://raw.github.com/ajdamico/usgsd/master/Program%20for%20International%20Student%20Assessment/download%20import%20and%20design.R"  #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# that script will create a file "2009 int_stq09_dec11.rda" in C:/My Directory/PISA or wherever the working directory was set.            #
-###########################################################################################################################################
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-# # # # # # # # # # # # # # #
-# warning: monetdb required #
-# # # # # # # # # # # # # # #
-
-
-# windows machines and also machines without access
-# to large amounts of ram will often benefit from
-# the following option, available as of MonetDB.R 0.9.2 --
-# remove the `#` in the line below to turn this option on.
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
-# -- whenever connecting to a monetdb server,
-# this option triggers sequential server processing
-# in other words: single-threading.
-# if you would prefer to turn this on or off immediately
-# (that is, without a server connect or disconnect), use
-# turn on single-threading only
-# dbSendQuery( db , "set optimizer = 'sequential_pipe';" )
-# restore default behavior -- or just restart instead
-# dbSendQuery(db,"set optimizer = 'default_pipe';")
-
-
-# remove the # in order to run this install.packages line only once
-# install.packages( "mitools" )
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#######################################################################################################################################################
+# prior to running this analysis script, the pisa 2009 multiply-imputed tables must be loaded as a monet-backed survey object on the                  #
+# local machine. running the download, import, and design script will create a monetdb-backed multiply-imputed database with whatcha need             #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# "https://raw.githubusercontent.com/ajdamico/asdfree/master/Program%20for%20International%20Student%20Assessment/download%20import%20and%20design.R" #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# that script will create a file "2009 int_stq09_dec11.rda" in C:/My Directory/PISA or wherever the working directory was set.                        #
+#######################################################################################################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 library(downloader)		# downloads and then runs the source() function on scripts from github
-library(MonetDB.R)		# load the MonetDB.R package (connects r to a monet database)
+library(survey) 		# load survey package (analyzes complex design surveys)
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
 library(mitools) 		# load mitools package (analyzes multiply-imputed data)
-library(survey)			# load survey package (analyzes complex design surveys)
 
 
-
-# after running the r script above, users should have handy a few lines
-# to initiate and connect to the monet database containing all program for international student assessment tables
-# run them now.  mine look like this:
-
-
-#####################################################################
-# lines of code to hold on to for all other `pisa` monetdb analyses #
-
-# first: specify your batfile.  again, mine looks like this:
 # uncomment this line by removing the `#` at the front..
-# batfile <- "C:/My Directory/PISA/MonetDB/pisa.bat"		# # note for mac and *nix users: `pisa.bat` might be `pisa.sh` instead
+# setwd( "C:/My Directory/PISA/" )
 
-# second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
+# name the database files in the "MonetDB" folder of the current working directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
 
-# third: your five lines to make a monet database connection.
-# just like above, mine look like this:
-dbname <- "pisa"
-dbport <- 50007
-
-monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
-db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
-
-# # # # run your analysis commands # # # #
+# open the connection to the monetdblite database
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 
 # the program for international student assessment download and importation script
@@ -118,16 +65,6 @@ db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
 # load the desired program for international student assessment monet database-backed complex sample design objects
 
 
-# uncomment this line by removing the `#` at the front..
-# setwd( "C:/My Directory/PISA/" )
-# ..in order to set your current working directory
-
-
-
-# uncomment one this line by removing the `#` at the front..
-load( '2009 int_stq09_dec11.rda' )	# analyze the 2009 student questionnaire
-
-
 # create a character vector with all five of the tablenames
 five.imps <- paste0( 'int_stq09_dec11_imp' , 1:5 )
 
@@ -146,13 +83,7 @@ for ( i in 1:5 ){
 # # # end of monetdb # # #
 
 # disconnect from the current monet database
-dbDisconnect( db )
-
-# and close it using the `pid`
-monetdb.server.stop( pid )
-
-# end of lines of code to hold on to for all other `pisa` monetdb analyses #
-############################################################################
+dbDisconnect( db , shutdown = TRUE )
 
 
 # R will exactly match SUDAAN results and Stata with the MSE option results
@@ -218,29 +149,15 @@ svycontrast(
 # ..precisely matches the statistics and standard errors for `BRA` (brazil)
 # shown in the lower lower right corner of powerpoint slide 20 in the oecd-produced 2009
 # technical documentation, saved here:
-# https://github.com/ajdamico/usgsd/blob/master/Program%20for%20International%20Student%20Assessment/4_SE_differences.pptx?raw=true
+# https://github.com/ajdamico/asdfree/blob/master/Program%20for%20International%20Student%20Assessment/4_SE_differences.pptx?raw=true
 
 
 # `brazil.2009.design` is a multiply-imputed (but no longer monetdb-backed) replicate-weighted survey design object
 # that you can analyze using syntax similar to the national health interview survey's multiply-imputed survey objects (found here)
-# https://github.com/ajdamico/usgsd/blob/master/National%20Health%20Interview%20Survey/2011%20personsx%20plus%20samadult%20with%20multiple%20imputation%20-%20analyze.R
+# https://github.com/ajdamico/asdfree/blob/master/National%20Health%20Interview%20Survey/2011%20personsx%20plus%20samadult%20with%20multiple%20imputation%20-%20analyze.R
 # or the consumer expenditure survey's multiply-imputed survey objects (found here)
-# https://github.com/ajdamico/usgsd/blob/master/Consumer%20Expenditure%20Survey/2011%20fmly%20intrvw%20-%20analysis%20examples.R
+# https://github.com/ajdamico/asdfree/blob/master/Consumer%20Expenditure%20Survey/2011%20fmly%20intrvw%20-%20analysis%20examples.R
 
 # this pisa extraction script does not contain a full set of analysis examples for this non-monetdb-backed object
 # but you can review syntax examples for multiply-imputed objects in those other scripts.  please and thank you.
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

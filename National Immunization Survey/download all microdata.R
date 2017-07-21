@@ -1,7 +1,7 @@
 # analyze survey data for free (http://asdfree.com) with the r language
 # national immunization survey
-# 1995-2011 main files
-# 2008-2011 teen files
+# 1995-2013 main files
+# 2008-2013 teen files
 # 2009 h1n1 flu file
 
 # # # # # # # # # # # # # # # # #
@@ -9,27 +9,18 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NIS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Immunization%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Immunization%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # joe walsh
 # j.thomas.walsh@gmail.com
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ##########################################################
@@ -49,17 +40,17 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "SAScii" , "downloader" ) )
+# install.packages( c( "SAScii" , "downloader" , "digest" ) )
 
 
 # choose which files to download and import #
 
-nis.years.to.download <- 1995:2011							# reads in all available main nis files
+nis.years.to.download <- 1995:2013							# reads in all available main nis files
 # nis.years.to.download <- c( 1998:2003 , 2006 )			# reads in the 1998-2003 and 2006 main nis files
 # nis.years.to.download <- NULL								# skips the main nis files entirely
 
-nis.teen.years.to.download <- 2008:2011						# reads in all available teen nis files
-# nis.teen.years.to.download <- c( 2008, 2009 , 2011 )		# reads in the 2008, 2009, and 2011 teen nis files
+nis.teen.years.to.download <- 2008:2013						# reads in all available teen nis files
+# nis.teen.years.to.download <- c( 2008, 2009 , 2013 )		# reads in the 2008, 2009, and 2013 teen nis files
 # nis.teen.years.to.download <- NULL						# skips the teen nis files entirely
 
 nhfs.download <- TRUE										# reads in the 2009 h1n1 file
@@ -77,10 +68,10 @@ nhfs.download <- TRUE										# reads in the 2009 h1n1 file
 library(SAScii) 			# load the SAScii package (imports ascii data with a SAS script)
 library(downloader)			# downloads and then runs the source() function on scripts from github
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
@@ -124,7 +115,7 @@ for ( year in nis.years.to.download ){
 	} else {
 	
 		# try to download the `dat` file from the cdc's website directly
-		sdat <- try( download.cache( straight.dat , tf , mode = 'wb' ) , silent = TRUE )
+		sdat <- try( download_cached( straight.dat , tf , mode = 'wb' ) , silent = TRUE )
 
 	}
 		
@@ -140,7 +131,7 @@ for ( year in nis.years.to.download ){
 			)
 		
 		# try downloading the zipped file
-		zdat <- try( download.cache( zip.dat , tf , mode = 'wb' ) , silent = TRUE )
+		zdat <- try( download_cached( zip.dat , tf , mode = 'wb' ) , silent = TRUE )
 
 		# if the download failed..
 		if( class( zdat ) == 'try-error' ){
@@ -154,7 +145,7 @@ for ( year in nis.years.to.download ){
 				)
 			
 			# try downloading the zipped file again
-			zdat <- try( download.cache( zip.dat , tf , mode = 'wb' ) , silent = TRUE )
+			zdat <- try( download_cached( zip.dat , tf , mode = 'wb' ) , silent = TRUE )
 
 			# if the download failed..
 			if( class( zdat ) == 'try-error' ){
@@ -168,7 +159,7 @@ for ( year in nis.years.to.download ){
 					)
 				
 				# try downloading the zipped file a final time
-				download.cache( zip.dat , tf , mode = 'wb' )
+				download_cached( zip.dat , tf , mode = 'wb' )
 			
 			}
 
@@ -207,7 +198,7 @@ for ( year in nis.years.to.download ){
 	
 	
 	# try downloading the script directly
-	rs <- try( download.cache( script.r , tf , mode = 'wb' ) , silent = TRUE )
+	rs <- try( download_cached( script.r , tf , mode = 'wb' ) , silent = TRUE )
 
 	# if the r script does not exist..
 	if( class( rs ) == 'try-error' ){	
@@ -221,7 +212,7 @@ for ( year in nis.years.to.download ){
 			)
 		
 		# save it to the local disk
-		download.cache( script.sas , tf , mode = 'wb' )
+		download_cached( script.sas , tf , mode = 'wb' )
 
 		# load it into a character vector
 		script.txt <- readLines( tf )
@@ -326,7 +317,7 @@ for ( year in nis.teen.years.to.download ){
 		)
 
 	# download the `dat` file from the cdc's website directly
-	download.cache( straight.dat , tf , mode = 'wb' )
+	download_cached( straight.dat , tf , mode = 'wb' )
 
 	# move the downloaded file to the appropriately-saved place
 	file.rename( tf , puf.savename )
@@ -347,7 +338,7 @@ for ( year in nis.teen.years.to.download ){
 	
 	
 	# download the r script directly
-	download.cache( script.r , tf , mode = 'wb' )
+	download_cached( script.r , tf , mode = 'wb' )
 
 	# load the r script into a character vector
 	script.r <- readLines( tf )
@@ -432,7 +423,7 @@ if ( nhfs.download ){
 		"ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/nis/nhfs/nhfspuf.dat"
 		
 	# download that pup
-	download.cache( straight.dat , tf , mode = 'wb' )
+	download_cached( straight.dat , tf , mode = 'wb' )
 
 	# copy the downloaded file over to the save location
 	file.rename( tf , puf.savename )
@@ -446,7 +437,7 @@ if ( nhfs.download ){
 	
 	
 	# download the r script to the local disk
-	download.cache( script.r , tf , mode = 'wb' )
+	download_cached( script.r , tf , mode = 'wb' )
 
 	
 	# load the r script into a character vector
@@ -505,17 +496,3 @@ if ( nhfs.download ){
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste0( "all done.  you should set the directory " , getwd() , " read-only so you don't accidentally alter these tables." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

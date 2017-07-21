@@ -8,24 +8,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/CPS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Current%20Population%20Survey/replicate%20census%20estimates%20-%202011.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Current%20Population%20Survey/replicate%20census%20estimates%20-%202011.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -43,7 +34,7 @@
 # prior to running this analysis script, the cps march 2011 file must be loaded as a database (.db) on the local machine.         #
 # running the 2011 download all microdata script will create this database file                                                   #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Current%20Population%20Survey/2005-2012%20asec%20-%20download%20all%20microdata.R #
+# https://github.com/ajdamico/asdfree/blob/master/Current%20Population%20Survey/2005-2012%20asec%20-%20download%20all%20microdata.R #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will create a file "cps.asec.db" with 'asec11' in C:/My Directory/ACS or wherever the working directory was set     #
 ###################################################################################################################################
@@ -61,19 +52,9 @@
 # ..in order to set your current working directory
 
 
-
-# remove the # in order to run this install.packages line only once
-# install.packages( c ( "survey" , "RSQLite" ) )
-
-
 library(survey)		# load survey package (analyzes complex design surveys)
-library(RSQLite) 	# load RSQLite package (creates database files in R)
-
-# set R to produce conservative standard errors instead of crashing
-# http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html
-options( survey.lonely.psu = "adjust" )
-# this setting matches the MISSUNIT option in SUDAAN
-
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
 
 
 # if this option is set to TRUE
@@ -83,6 +64,10 @@ options( survey.replicates.mse = TRUE )
 # R will exactly match Stata without the MSE option results
 
 # Stata svyset command notes can be found here: http://www.stata.com/help.cgi?svyset
+
+
+# name the database files in the "MonetDB" folder of the current working directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
 
 
 #######################################
@@ -99,9 +84,13 @@ y <-
 		rho = (1-1/sqrt(4)),
 		data = "asec11" ,
 		combined.weights = T ,
-		dbtype = "SQLite" ,
-		dbname = "cps.asec.db"
+		dbtype = "MonetDBLite" ,
+		dbname = dbfolder
 	)
+
+# workaround for a bug in survey::svrepdesign.character
+y$mse <- TRUE
+
 
 #############################################################################################################
 # these commands replicate the results of the SAS, SUDAAN, and WesVar code presented in                     #  
@@ -128,17 +117,3 @@ svytotal( ~one , males.above15.inpoverty )
 ##################################
 # end of census code replication #
 ##################################
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

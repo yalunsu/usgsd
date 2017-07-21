@@ -8,24 +8,15 @@
 # library(downloader)
 # setwd( "C:/My Directory/MLCES/" )
 # years.to.download <- 1997:1999
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Medical%20Large%20Claims%20Experience%20Study/1997-1999%20mlces%20-%20download.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Medical%20Large%20Claims%20Experience%20Study/1997-1999%20mlces%20-%20download.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 #########################################################################
@@ -45,7 +36,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( "downloader" )
+# install.packages( "downloader" , "digest" )
 
 
 # uncomment this line to download all available data sets
@@ -107,17 +98,3 @@ for ( year in years.to.download ){
 
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste( "all done.  you should set" , getwd() , "read-only so you don't accidentally alter these files." ) )
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

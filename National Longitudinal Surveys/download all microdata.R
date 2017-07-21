@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NLS/" )
-# source_url( "https://raw.githubusercontent.com/ajdamico/usgsd/master/National%20Longitudinal%20Surveys/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Longitudinal%20Surveys/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ###################################################################################
@@ -53,11 +44,14 @@ library(stringr)	# load stringr package (manipulates character strings easily)
 library(downloader)	# downloads and then runs the source() function on scripts from github
 
 
+# open the jsp box
+GET( "https://www.nlsinfo.org/investigator/pages/search.jsp" )
+
 # log on to the nlsinfo investigator and pull all available studies
-studies <- GET( "https://www.nlsinfo.org/investigator/servlet1?get=STUDIES" )
+studies <- GET( "https://www.nlsinfo.org/investigator/servlet1?get=STUDIES&t=1" )
 
 # extract the study names option
-study.names <- xpathSApply( content( studies ) , "//option" , xmlAttrs )
+study.names <- xpathSApply( xmlParse( content( studies ) ) , "//option" , xmlAttrs )
 
 # remove the negative one, which is the default but not its own study
 study.names <- study.names[ study.names != '-1' ]
@@ -121,10 +115,10 @@ for ( this.study in study.names ){
 		)
 	
 	# extract the option tags from the substudies page
-	substudy.numbers <- xpathSApply( content( substudies ) , "//option" , xmlAttrs )
+	substudy.numbers <- xpathSApply( xmlParse( content( substudies ) ) , "//option" , xmlAttrs )
 	
 	# also extract the values contained within those tags
-	substudy.names <- xpathSApply( content( substudies ) , "//option" , xmlValue )
+	substudy.names <- xpathSApply( xmlParse( content( substudies ) ) , "//option" , xmlValue )
 	
 	# convert that list into a vector
 	substudy.numbers <- unlist( substudy.numbers )
@@ -266,7 +260,7 @@ for ( this.study in study.names ){
 						v <- ""
 						
 						# so long as the `v` string does not contain this response text..
-						while( !( grepl( "{\"status_response\":{\"message\":\"\",\"name\"" , as.character( v ) , fixed = TRUE ) ) ){
+						while( !( grepl( "\"message\":\"\"}}" , as.character( v ) , fixed = TRUE ) ) ){
 							
 							# ping the server to determine the current progress of the creation of the current extract
 							v <- GET( paste0( "https://www.nlsinfo.org/investigator/servlet1?job=" , job.id , "&event=progress&cmd=extract&_=" , as.numeric( Sys.time() ) * 1000 ) )
@@ -282,7 +276,7 @@ for ( this.study in study.names ){
 							# first successful usage of `&&` operator.  pat on the back.
 						
 							# extract the current contents of the `v` object to determine the current progress
-							msg <- strsplit( strsplit( as.character(v) , 'message\":\"' )[[1]][2] , '\",\"name' )[[1]][1]
+							msg <- strsplit( strsplit( as.character(v) , 'message\":\"' )[[1]][2] , '\"}}' )[[1]][1]
 							
 							# print that progress to the screen
 							cat( "    " , msg , "\r" )
@@ -356,17 +350,3 @@ file.remove( tf )
 # ..and temporary directory from your hard drive
 unlink( d , recursive = TRUE )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

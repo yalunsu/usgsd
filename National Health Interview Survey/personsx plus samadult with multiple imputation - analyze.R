@@ -1,55 +1,46 @@
 # analyze survey data for free (http://asdfree.com) with the r language
 # national health interview survey
-# 2011 personsx plus samadult with multiple imputation
+# 2014 personsx plus samadult with multiple imputation
 
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NHIS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Health%20Interview%20Survey/2011%20personsx%20plus%20samadult%20with%20multiple%20imputation%20-%20analyze.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Health%20Interview%20Survey/personsx%20plus%20samadult%20with%20multiple%20imputation%20-%20analyze.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #####################################################################################################################################
-# prior to running, the nhis 2011 personsx, samadult, incmimp# files must be loaded as an R data file (.rda) on the local machine.  #
-# running the "1963-2011 - download all microdata.R" script will create this R data file (note: only 2011 files need to be loaded)  #
+# prior to running, the nhis 2014 personsx, samadult, incmimp# files must be loaded as an R data file (.rda) on the local machine.  #
+# running the "download all microdata.R" script will create this R data file (note: only 2014 files need to be loaded)              #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/National%20Health%20Interview%20Survey/1963-2011%20-%20download%20all%20microdata.R #
+# https://github.com/ajdamico/asdfree/blob/master/National%20Health%20Interview%20Survey/download%20all%20microdata.R #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# that script will create a files "/2011/_filename_.rda" in C:/My Directory/NHIS (or wherever the working directory was chosen)     #
+# that script will create a files "/2014/_filename_.rda" in C:/My Directory/NHIS (or wherever the working directory was chosen)     #
 #####################################################################################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 
 #########################################################################################################
-# Analyze the 2011 National Health Interview Survey personsx, samadult, and imputed income files with R #
+# Analyze the 2014 National Health Interview Survey personsx, samadult, and imputed income files with R #
 #########################################################################################################
 
 
 # set your working directory.
-# the NHIS 2011 personsx, samadult, and incmimp# data files should have been
+# the NHIS 2014 personsx, samadult, and incmimp# data files should have been
 # stored in a year-specific directory within this folder.
-# so if the file "personsx.rda" exists in the directory "C:/My Directory/NHIS/2011/" 
+# so if the file "personsx.rda" exists in the directory "C:/My Directory/NHIS/2014/" 
 # then the working directory should be set to "C:/My Directory/NHIS/"
 # use forward slashes instead of back slashes
 
@@ -73,8 +64,8 @@ options( survey.lonely.psu = "adjust" )
 
 # choose what year of data to analyze
 # note: this can be changed to any year that has already been downloaded locally
-# by the "1963-2011 - download all microdata.R" program above
-year <- 2011
+# by the "1963-2014 - download all microdata.R" program above
+year <- 2014
 
 
 # construct the filepath (within the current working directory) to the three rda files
@@ -101,7 +92,7 @@ ls()
 
 # construct a string containing the data frame name of the personsx data table
 # stored within the R data file (.rda)
-# note: for 2011, this data frame will be named "NHIS.11.personsx.df"
+# note: for 2014, this data frame will be named "NHIS.11.personsx.df"
 # but constructing it dynamically will allow analyses of other years
 # by simply changing the 'year' variable above
 df.name <- paste( "NHIS" , substr( year , 3 , 4 ) , "personsx" , "df" , sep = "." )
@@ -396,7 +387,7 @@ for ( i in 1:5 ){
 	# containing the current iteration's (1 through 5) imputed income file
 	current.i <- get( paste0( "ii" , i ) )
 
-	# the 2011 imputed income merge fields are currently stored as character variables
+	# the 2014 imputed income merge fields are currently stored as character variables
 	# and should immediately be converted over to numeric types
 	merge.vars <- intersect( names( x.sa ) , names( current.i ) )
 	
@@ -412,7 +403,7 @@ for ( i in 1:5 ){
 	# merge the merged file with each of the five imputed income files
 	y <- 
 		merge( 
-			x.sa , # the 2011 samadult-personsx merged data frame
+			x.sa , # the 2014 samadult-personsx merged data frame
 			current.i # ii1 - ii5, depending on the current iteration of this loop
 		)
 
@@ -433,13 +424,13 @@ for ( i in 1:5 ){
 			# note that these poverty categories go out to the tenth decimal
 			
 			# create an 'at or above 200% fpl' flag
-			at.or.above.200 = ifelse( povrati3 >= 2000 , 1 , 0 ) ,
+			at.or.above.200 = ifelse( povrati3 >= 2 , 1 , 0 ) ,
 			
 			# create a four-category poverty variable
 			fine.povcat =
 				cut( 
 					povrati3 , 
-					c( -Inf , 1380 , 2000 , 4000 , Inf ) ,
+					c( -Inf , 1.38 , 2 , 4 , Inf ) ,
 					labels = c( "<138%" , "138-200%" , "200-399%" , "400%+" )
 				)
 		)
@@ -538,17 +529,3 @@ MIcombine(
 	) 
 )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -5,129 +5,62 @@
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
 # # # # # # # # # # # # # # # # #
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
 # library(downloader)
-# batfile <- "C:/My Directory/ACS/MonetDB/acs.bat"		# # note for mac and *nix users: `acs.bat` might be `acs.sh` instead
-# load( 'C:/My Directory/ACS/acs2011_1yr.rda' )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/American%20Community%20Survey/2011%20single-year%20-%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# setwd( 'C:/My Directory/ACS/' )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/American%20Community%20Survey/2011%20single-year%20-%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #####################################################################################################################################
-# prior to running this analysis script, the acs 2011 single-year file must be loaded as a monet database-backed sqlsurvey object   #
+# prior to running this analysis script, the acs 2011 single-year file must be loaded as a monet database-backed survey object      #
 # on the local machine. running the 2005-2011 download and create database script will create a monet database containing this file #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/American%20Community%20Survey/download%20all%20microdata.R                          #
+# https://github.com/ajdamico/asdfree/blob/master/American%20Community%20Survey/download%20all%20microdata.R                        #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will create a file "acs2011_1yr.rda" in C:/My Directory/ACS or wherever the working directory was set for the program #
 #####################################################################################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
-# # # # # # # # # # # # # # #
-# warning: monetdb required #
-# # # # # # # # # # # # # # #
+library(survey)			# load survey package (analyzes complex design surveys)
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
 
-
-# windows machines and also machines without access
-# to large amounts of ram will often benefit from
-# the following option, available as of MonetDB.R 0.9.2 --
-# remove the `#` in the line below to turn this option on.
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
-# -- whenever connecting to a monetdb server,
-# this option triggers sequential server processing
-# in other words: single-threading.
-# if you would prefer to turn this on or off immediately
-# (that is, without a server connect or disconnect), use
-# turn on single-threading only
-# dbSendQuery( db , "set optimizer = 'sequential_pipe';" )
-# restore default behavior -- or just restart instead
-# dbSendQuery(db,"set optimizer = 'default_pipe';")
-
-
-library(sqlsurvey)		# load sqlsurvey package (analyzes large complex design surveys)
-library(MonetDB.R)		# load the MonetDB.R package (connects r to a monet database)
-
-
-# after running the r script above, users should have handy a few lines
-# to initiate and connect to the monet database containing all american community survey tables
-# run them now.  mine look like this:
-
-
-####################################################################
-# lines of code to hold on to for all other `acs` monetdb analyses #
-
-# first: specify your batfile.  again, mine looks like this:
-# uncomment this line by removing the `#` at the front..
-# batfile <- "C:/My Directory/ACS/MonetDB/acs.bat"		# # note for mac and *nix users: `acs.bat` might be `acs.sh` instead
-
-# second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
-
-# third: your five lines to make a monet database connection.
-# just like above, mine look like this:
-dbname <- "acs"
-dbport <- 50001
-
-monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
-db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
-
-# # # # run your analysis commands # # # #
-
-
-# the american community survey download and importation script
-# has already created a monet database-backed survey design object
-# connected to the 2011 single-year table
-
-# sqlite database-backed survey objects are described here: 
-# http://r-survey.r-forge.r-project.org/survey/svy-dbi.html
-# monet database-backed survey objects are similar, but:
-# the database engine is, well, blazingly faster
-# the setup is kinda more complicated (but all done for you)
-
-# since this script only loads one file off of the local drive,
-# there's no need to set the working directory.
-# instead, simply use the full filepath to the r data file (.rda)
-# as shown in the load() examples below.
-
-# choose which file in your ACS directory to analyze:
-# one-year, three-year, or five-year file from any of the available years.
-# this script replicates the 2011 single-year estimates,
-# so leave that line uncommented and the other three choices commented out.
 
 # load the desired american community survey monet database-backed complex sample design objects
 
 # uncomment one of these lines by removing the `#` at the front..
-# load( 'C:/My Directory/ACS/acs2011_1yr.rda' )	# analyze the 2011 single-year acs
-# load( 'C:/My Directory/ACS/acs2010_1yr.rda' )	# analyze the 2010 single-year acs
-# load( 'C:/My Directory/ACS/acs2010_3yr.rda' )	# analyze the 2008-2010 three-year acs
-# load( 'C:/My Directory/ACS/acs2010_5yr.rda' )	# analyze the 2006-2010 five-year acs
+load( 'acs2011_1yr.rda' )	# analyze the 2011 single-year acs
+# load( 'acs2010_1yr.rda' )	# analyze the 2010 single-year acs
+# load( 'acs2010_3yr.rda' )	# analyze the 2008-2010 three-year acs
+# load( 'acs2010_5yr.rda' )	# analyze the 2006-2010 five-year acs
+
 
 # note: this r data file should already contain both the merged (person + household) and household-only designs
 
-
 # connect the complex sample designs to the monet database #
-acs.m <- open( acs.m.design , driver = MonetDB.R() , wait = TRUE )	# merged design
-acs.h <- open( acs.h.design , driver = MonetDB.R() , wait = TRUE )	# household-only design
+acs.m <- open( acs.m.design , driver = MonetDBLite() )	# merged design
+acs.h <- open( acs.h.design , driver = MonetDBLite() )	# household-only design
 
+
+###########################
+# variable recode example #
+###########################
+
+
+# construct a new age category variable in the dataset: 0-4, 5-9, 10-14...55-59, 60-64, 65+
+acs.m <- update( acs.m , agecat = 1 + findInterval( agep , seq( 5 , 65 , 5 ) ) )
+
+# print the distribution of that age category
+svymean( ~ factor( agecat ) , acs.m )
 
 
 ################################################
@@ -139,22 +72,18 @@ acs.h <- open( acs.h.design , driver = MonetDB.R() , wait = TRUE )	# household-o
 # simply use the nrow function..
 nrow( acs.m )
 
-# ..on the sqlrepsurvey design object
+# ..on the svrepdesign object
 class( acs.m )
 
 
-# since the acs gets loaded as a monet database-backed survey object instead of a data frame,
-# the number of unweighted records cannot be calculated by running the nrow() function on a data frame.
+# name the database files in the "MonetDB" folder of the current working directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
 
-# running the nrow() function on the database connection object
-# simply produces an error..
-# nrow( db )
-
-# because the monet database might contain multiple data tables
-class( db )
+# open the connection to the monetdblite database
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 
-# instead, perform the same unweighted count directly from the sql table
+# perform the same unweighted count directly from the sql table
 # stored inside the monet database on your hard disk (as opposed to RAM)
 dbGetQuery( db , "SELECT COUNT(*) AS num_records FROM acs2011_1yr_m" )
 
@@ -181,7 +110,7 @@ dbGetQuery( db , "SELECT SUM( pwgtp ) AS sum_weights FROM acs2011_1yr_m" )
 # the population of the united states #
 # by state
 svytotal( ~one , acs.m , byvar = ~st )
-# note: the above command is one example of how the r survey package differs from the r sqlsurvey package
+# note: the above command is one example of how the r survey package differs from the r survey package
 
 
 # calculate the mean of a linear variable #
@@ -195,38 +124,21 @@ svymean( ~agep , acs.m , byvar = ~st )
 
 # calculate the distribution of a categorical variable #
 
-# HICOV has been converted to a factor (categorical) variable
-# instead of a numeric (linear) variable,
-# because it only contains the values 1 and 2.
-# when the acs.m object was created with the function sqlrepdesign()
-# the check.factors parameter was left at the default of ten,
-# meaning all numeric columns with ten or fewer distinct values
-# would be automatically converted to factors
+# first, force the variable to be a factor class
+acs.m <- update( acs.m , hicov = factor( hicov ) )
 
 # percent uninsured - nationwide
 svymean( ~hicov , acs.m )
 
 # by state
-svymean( ~hicov , acs.m , byvar = ~st )
+svyby( ~hicov , ~st , acs.m , svymean )
 
 
 # calculate the median and other percentiles #
 
-# median age of residents of the united states
-svyquantile( ~agep , acs.m , , quantiles = 0.5 , se = T )
+# 25th, median, and 75th percentile of age of residents of the united states
+svyquantile( ~agep , acs.m , c( .25 , .5 , .75 ) )
 
-# note two additional differences between the sqlsurvey and survey packages..
-
-# ..sqlrepsurvey designs do not allow multiple quantiles.  instead, 
-# loop through and print or save multiple quantiles, simply use a for loop
-
-# loop through the 25th, 50th, and 75th quantiles and print each result to the screen
-for ( i in c( .25 , .5 , .75 ) ) print( svyquantile( ~agep , acs.m , quantiles = i , se = TRUE ) )
-
-
-# ..sqlrepsurvey designs do not allow byvar arguments, meaning the only way to 
-# calculate quantiles by state would be by creating subsets for each subpopulation
-# and calculating the quantiles for them independently:
 
 ######################
 # subsetting example #
@@ -246,7 +158,7 @@ acs.m.female <- subset( acs.m , sex == 2 )
 svymean( ~agep , acs.m.female )
 
 # median age - nationwide, restricted to females
-svyquantile( ~agep , acs.m.female , quantiles = 0.5 , se = T )
+svyquantile( ~agep , acs.m.female , 0.5 )
 
 
 
@@ -259,12 +171,12 @@ svyquantile( ~agep , acs.m.female , quantiles = 0.5 , se = T )
 
 # store the results into a new object
 
-coverage.by.region <- svymean( ~hicov , acs.m , byvar = ~region )
+coverage.by.region <- svyby( ~hicov , ~region , acs.m , svymean )
 
 # print the results to the screen 
 coverage.by.region
 
-# now you have the results saved into a new svyrepstat object..
+# now you have the results saved into a new svyby object..
 class( coverage.by.region )
 
 # print only the statistics (coefficients) to the screen 
@@ -285,7 +197,7 @@ write.csv( coverage.by.region , "coverage by region.csv" )
 # here's the uninsured percentage by region, 
 # with accompanying standard errors
 uninsured.rate.by.region <-
-	coverage.by.region[ substr( rownames( coverage.by.region) , 1 , 2 ) == "2:" , ]
+	coverage.by.region[ , c( 1 , 3 , 5 ) ]
 
 
 # print the new results to the screen
@@ -299,7 +211,7 @@ write.csv( uninsured.rate.by.region , "uninsured rate by region.csv" )
 barplot(
 	uninsured.rate.by.region[ , 1 ] ,
 	main = "Uninsured Rate by Region of the Country" ,
-	names.arg = c( "Northeast" , "Midwest" , "South" , "West" ) ,
+	names.arg = c( "Northeast" , "Midwest" , "South" , "West" , "Puerto Rico" ) ,
 	ylim = c( 0 , .40 )
 )
 
@@ -309,31 +221,13 @@ barplot(
 ############################
 
 
-# close the connection to the two sqlrepsurvey design objects
+# close the connection to the two svrepdesign design objects
 close( acs.m )
 close( acs.h )
 
 
 # disconnect from the current monet database
-dbDisconnect( db )
-
-# and close it using the `pid`
-monetdb.server.stop( pid )
-
-# end of lines of code to hold on to for all other `acs` monetdb analyses #
-###########################################################################
+dbDisconnect( db , shutdown = TRUE )
 
 
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
 
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

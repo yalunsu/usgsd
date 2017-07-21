@@ -7,31 +7,22 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NLS/" )
-# source_url( "https://raw.githubusercontent.com/ajdamico/usgsd/master/National%20Longitudinal%20Surveys/longitudinal%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Longitudinal%20Surveys/longitudinal%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #############################################################################################################################
 # prior to running this analysis script, the complete NLS microdata for your study must be loaded on your local machine     #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.githubusercontent.com/ajdamico/usgsd/master/National%20Longitudinal%20Surveys/download%20all%20microdata.R    #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Longitudinal%20Surveys/download%20all%20microdata.R    #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will a bunch of R data files (.rda) within the "C:/My Directory/NLS/" folder (or specified working directory) #
 #############################################################################################################################
@@ -49,7 +40,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "downloader" , "survey" ) )
+# install.packages( c( "downloader" , "digest" , "survey" ) )
 
 
 library(downloader) # downloads and then runs the source() function on scripts from github
@@ -83,7 +74,7 @@ vfta <-
 
 # load the custom weights function to easily & automatically pull
 # the weights you need for your specific analysis into R
-source_url( "https://raw.githubusercontent.com/ajdamico/usgsd/master/National%20Longitudinal%20Surveys/custom%20weight%20download%20functions.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Longitudinal%20Surveys/custom%20weight%20download%20functions.R" , prompt = FALSE )
 # you can read more about longitudinal weights here
 # http://www.nlsinfo.org/weights
 
@@ -440,17 +431,3 @@ svyby( ~ one , ~ T6662900 , y , unwtd.count )
 # at this young age, only eleven respondents have been  widowed.
 # that percent is garbage.
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -1,6 +1,6 @@
 # analyze survey data for free (http://asdfree.com) with the r language
 # medical expenditure panel survey
-# 1996 through 2012
+# 1996 through 2014
 # full-year consolidated, medical conditions, jobs, person round plan, longitudinal weight, and event files
 
 # # # # # # # # # # # # # # # # #
@@ -8,24 +8,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/MEPS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Medical%20Expenditure%20Panel%20Survey/household%20component%20-%20download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Medical%20Expenditure%20Panel%20Survey/household%20component%20-%20download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ##################################################################################################
@@ -43,46 +34,50 @@
 # ..in order to set your current working directory
 
 
-
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "RCurl" , "downloader" ) )
+# install.packages( c( "RCurl" , "downloader" , "digest" ) )
 
 
 library(RCurl)				# load RCurl package (downloads files from the web)
 library(foreign) 			# load foreign package (converts data files into R)
 library(downloader)			# downloads and then runs the source() function on scripts from github
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
 
 # all available meps years
-year <- 1996:2012
+year <- 1996:2014
 
 
 # specify the file numbers of all MEPS public use files
-# (these were acquired from browsing around http://meps.ahrq.gov/mepsweb/data_stats/download_data_files.jsp)
+# (these were acquired from browsing around https://meps.ahrq.gov/data_stats/download_data_files.jsp)
 # notes:
 # 1996 files are buggy.
 # 2000, 2001, 2002, and 2003 jobs files need a workaround.
 # 2001 and 2002 medical conditions files need a workaround.
 # 2000, 2001, and 2002 events files need a workaround.
-consolidated <- c( 12 , 20 , 28 , 38 , 50 , 60 , 70 , 79 , 89 , 97 , 105 , 113 , 121 , 129 , 138 , 147 , 155 )
-conditions <- c( "06r" , 18 , 27 , 37 , 52 , NA , NA , 78 , 87 , 96 , 104 , 112 , 120 , 128 , 137 , 146 , 154 )
-jobs <- c( "07" , 19 , 25 , 32 , NA , NA , NA , NA , 83 , 91 , 100 , 108 , 116 , 124 , 133 , 142 , 150 )
-prpf <- c( 24 , 47 , 47 , 47 , 47 , 57 , 66 , 76 , 88 , 95 , 103 , 111 , 119 , 127 , 136 , 145 , NA )
-longitudinal <- c( 23 , 35 , 48 , 58 , 65 , 71 , 80 , 86 , 98 , 106 , 114 , 122 , 130 , 139 , 148 , NA , NA )
-events <- c( 10 , 16 , NA , 33 , NA , NA , NA , 77 , 85 , 94 , 102 , 110 , 118 , 126 , 135 , 144 , 152 )
+consolidated <- c( 12 , 20 , 28 , 38 , 50 , 60 , 70 , 79 , 89 , 97 , 105 , 113 , 121 , 129 , 138 , 147 , 155 , 163 , 171 )
+popchar <- c( NA , NA , NA , NA , NA , NA , NA , NA , NA , NA , NA , NA , 115 , 123 , 132 , 141 , 149 , 157 , 165 )
+conditions <- c( "06r" , 18 , 27 , 37 , 52 , NA , NA , 78 , 87 , 96 , 104 , 112 , 120 , 128 , 137 , 146 , 154 , 162 , 170 )
+jobs <- c( "07" , 19 , 25 , 32 , NA , NA , NA , NA , 83 , 91 , 100 , 108 , 116 , 124 , 133 , 142 , 150 , 158 , 166 )
+prpf <- c( 24 , 47 , 47 , 47 , 47 , 57 , 66 , 76 , 88 , 95 , 103 , 111 , 119 , 127 , 136 , 145 , 153 , 161 , 169 )
+longitudinal <- c( 23 , 35 , 48 , 58 , 65 , 71 , 80 , 86 , 98 , 106 , 114 , 122 , 130 , 139 , 148 , 156 , 164 , 172 , NA )
+events <- c( 10 , 16 , NA , 33 , NA , NA , NA , 77 , 85 , 94 , 102 , 110 , 118 , 126 , 135 , 144 , 152 , 160 , 168 )
+
+# condition-event link file currently only available until 2014
+# cond_event <- ifelse( events < 176 , paste0( events , "i" ) , NA )
+cond_event <- paste0( events , "i" )
 
 
 # specify the most current brr / link file locations
-lf <- "http://meps.ahrq.gov/data_files/pufs/h36brr12ssp.zip"
-lf.cb <- "http://meps.ahrq.gov/data_stats/download_data/pufs/h36brr/h36brr12cb.pdf"
-lf.doc <- "http://meps.ahrq.gov/data_stats/download_data/pufs/h36brr/h36brr12doc.pdf"
+lf <- "https://meps.ahrq.gov/data_files/pufs/h36brr13ssp.zip"
+lf.cb <- "https://meps.ahrq.gov/data_stats/download_data/pufs/h36brr/h36brr13cb.pdf"
+lf.doc <- "https://meps.ahrq.gov/data_stats/download_data/pufs/h36brr/h36brr13doc.pdf"
 
 
 # create a big table containing the file number of each meps data file available
@@ -91,11 +86,13 @@ mm <-
 	data.frame(
 		year , 
 		consolidated , 
+		popchar ,
 		conditions , 
 		jobs , 
 		prpf , 
 		longitudinal , 
-		events
+		events ,
+		cond_event
 	)
 
 	
@@ -134,7 +131,7 @@ mm$events <- NULL
 # this file should be skipped unless you spend lots of time reading the documentation
 # to figure out what changed where.
 # comment this line by adding a `#` at the front
-mm <- subset( mm , year %in% 1997:2012 )
+mm <- subset( mm , year %in% 1997:2014 )
 
 
 
@@ -165,7 +162,7 @@ tf <- tempfile(); td <- tempdir()
 
 
 # download brr / linkage files
-download.cache( lf , tf )
+download_cached( lf , tf , mode = 'wb' )
 zc <- unzip( tf , exdir = td )
 
 # read the file in as an R data frame
@@ -182,8 +179,8 @@ rm( brr ) ; gc()
 
 
 # download the documentation and codebook as well
-download.cache( lf.cb , "linkage - brr cb.pdf" , mode="wb" , cacheOK=F , method="internal" )
-download.cache( lf.doc  , "linkage - brr doc.pdf" , mode="wb" , cacheOK=F , method="internal" )
+download_cached( lf.cb , "linkage - brr cb.pdf" , mode = "wb" )
+download_cached( lf.doc  , "linkage - brr doc.pdf" , mode = "wb" )
 
 
 
@@ -198,37 +195,34 @@ for ( i in nrow( mm ):1 ) {
 		if ( !is.na( mm[ i , j ] ) ) {
 		
 			# wait 60 seconds before each new download..
-			Sys.sleep( 60 )
-		
+			# Sys.sleep( 60 )
+			
 			# create a character string containing the name of the .zip file
 			fn <- paste0( "h" , mm[ i , j ] , "ssp.zip" )
 			
 			# create the full url path to the zipped file on the web
-			u <- paste0( "http://meps.ahrq.gov/data_files/pufs/h" , mm[ i , j ] , "ssp.zip" )
+			u <- paste0( "https://meps.ahrq.gov/data_files/pufs/h" , mm[ i , j ] , "ssp.zip" )
 			
 			# figure out if the file exists
-			err <- try( getURLContent( u ) , silent = T )
+			err <- try( getURLContent( u , ssl.verifypeer = FALSE ) , silent = T )
 
 			# if it can't be found once, try a second time
 			if( class( err ) == "try-error" ){
 				
-				# wait 60 more seconds
-				Sys.sleep( 60 )
+				# wait 5 more seconds
+				Sys.sleep( 5 )
 				
 				# try once more
-				err <- try( getURLContent( u ) , silent = T )
+				err <- try( getURLContent( u , ssl.verifypeer = FALSE ) , silent = T )
 			}
 			
-			# wait 60 seconds before each new download..
-			Sys.sleep( 60 )
-					
 			# if the file doesn't exist on its own..
 			if( class( err ) == "try-error" ){
 				
 				# then there should be an f1 and an f2 file (sometimes more)
 				
 				# download the ..f1ssp.zip file to the temporary file on your local computer
-				download.cache( sub( "ssp.zip" , "f1ssp.zip" , u ) , tf ) 
+				download_cached( sub( "ssp.zip" , "f1ssp.zip" , u ) , tf , mode = 'wb' ) 
 				
 				# unzip the ..f1ssp.zip to the temporary directory
 				zc <- unzip( tf , exdir = td )
@@ -254,12 +248,9 @@ for ( i in nrow( mm ):1 ) {
 			
 				# immediately delete the brr data frame from memory and clear up ram
 				rm( list = df.name ) ; gc()
-			
-				# wait 60 seconds before the second download
-				Sys.sleep( 60 )
 				
 				# download the ..f2ssp.zip file to the temporary file on your local computer
-				download.cache( sub( "ssp.zip" , "f2ssp.zip" , u ) , tf ) 
+				download_cached( sub( "ssp.zip" , "f2ssp.zip" , u ) , tf , mode = 'wb' )
 				
 				# unzip the ..f2ssp.zip to the temporary directory
 				zc <- unzip( tf , exdir = td )
@@ -302,7 +293,7 @@ for ( i in nrow( mm ):1 ) {
 				attempt.one <-
 					try({
 						# download the ..ssp.zip file to the temporary file on your local computer
-						download.cache( u , tf )
+						download_cached( u , tf , mode = 'wb' )
 					
 						# unzip the ..ssp.zip to the temporary directory
 						zc <- unzip( tf , exdir = td )
@@ -315,11 +306,12 @@ for ( i in nrow( mm ):1 ) {
 				if ( class( attempt.one ) == 'try-error' ){
 					attempt.two <-
 						try({
-							# ..wait 60 seconds and try again
-							Sys.sleep( 60 )
+			
+							# ..wait 5 seconds and try again
+							Sys.sleep( 5 )
 							
 							# download the ..ssp.zip file to the temporary file on your local computer
-							download.cache( u , tf )
+							download_cached( u , tf , mode = 'wb' )
 						
 							# unzip the ..ssp.zip to the temporary directory
 							zc <- unzip( tf , exdir = td )
@@ -364,11 +356,11 @@ for ( i in nrow( mm ):1 ) {
 			cbname <- paste0( mm[ i , 1 ] , " - " , names( mm )[ j ] , " cb.pdf" )
 			
 			# specify the url where the codebook should be
-			cbsite <- paste0( "http://meps.ahrq.gov/data_stats/download_data/pufs/h" , mm[ i , j ] , "/h" , mm[ i , j ] , "cb.pdf" )
+			cbsite <- paste0( "https://meps.ahrq.gov/data_stats/download_data/pufs/h" , mm[ i , j ] , "/h" , mm[ i , j ] , "cb.pdf" )
 			
 			# determine whether the codebooks exists
 			# (note: many early codebooks do not exist, because they are included in the documentation file)
-			err <- try( getURLContent( cbsite ) , silent = T )
+			err <- try( getURLContent( cbsite , ssl.verifypeer = FALSE ) , silent = TRUE )
 			
 			# give the ahrq website five seconds before the actual download
 			Sys.sleep( 5 )
@@ -376,12 +368,12 @@ for ( i in nrow( mm ):1 ) {
 			attempt1 <- NULL
 			
 			# if it does, download it
-			if (! class(err) == "try-error" ) attempt1 <- try( download.cache(  cbsite , cbname , mode="wb" , cacheOK=F , method="internal" ) , silent = TRUE )
+			if (! class(err) == "try-error" ) attempt1 <- try( download_cached( cbsite , cbname , mode = "wb" ) , silent = TRUE )
 			
-			# if the first documentation download broke, wait 60 seconds and try again
+			# if the first documentation download broke, wait 5 seconds and try again
 			if ( class( attempt1 ) == 'try-error' ){
-				Sys.sleep( 60 )
-				download.cache(  cbsite , cbname , mode="wb" , cacheOK=F , method="internal" )
+				Sys.sleep( 5 )
+				try( download_cached(  cbsite , cbname , mode = "wb" ) , silent = TRUE )
 			}
 			
 			# reset the error object (this object stores whether or not the download attempt failed)
@@ -394,10 +386,10 @@ for ( i in nrow( mm ):1 ) {
 			docname <- paste0( mm[i,1] , " - " , names(mm)[j] , " doc.pdf" )
 			
 			# specify the url where the documentation should be
-			docsite <- paste0( "http://meps.ahrq.gov/data_stats/download_data/pufs/h" , mm[ i , j ] , "/h" , mm[ i , j ] , "doc.pdf" )
+			docsite <- paste0( "https://meps.ahrq.gov/data_stats/download_data/pufs/h" , mm[ i , j ] , "/h" , mm[ i , j ] , "doc.pdf" )
 			
 			# determine whether the documentation exists
-			err <- try( getURLContent( docsite ) , silent = T )
+			err <- try( getURLContent( docsite , ssl.verifypeer = FALSE ) , silent = T )
 			
 			# give the ahrq website five seconds before the actual download
 			Sys.sleep( 5 )
@@ -406,13 +398,13 @@ for ( i in nrow( mm ):1 ) {
 			
 			# if it does, download it
 			if (! class(err) == "try-error" ){
-				attempt1 <- try( download.cache(  docsite , docname , mode="wb" , cacheOK=F , method="internal" ) , silent = TRUE )
+				attempt1 <- try( download_cached( docsite , docname , mode = "wb" ) , silent = TRUE )
 			}
 			
-			# if the first documentation download broke, wait 60 seconds and try again
+			# if the first documentation download broke, wait 5 seconds and try again
 			if ( class( attempt1 ) == 'try-error' ){
-				Sys.sleep( 60 )
-				download.cache(  docsite , docname , mode="wb" , cacheOK=F , method="internal" )
+				Sys.sleep( 5 )
+				try( download_cached(  docsite , docname , mode = "wb" ) , silent = TRUE )
 			}
 			
 			# reset the error object (this object stores whether or not the download attempt failed)
@@ -425,17 +417,3 @@ for ( i in nrow( mm ):1 ) {
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste( "all done.  you should set" , getwd() , "read-only so you don't accidentally alter these files." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

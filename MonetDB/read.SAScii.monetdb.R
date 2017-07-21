@@ -1,26 +1,20 @@
 
-# create importation function
-# to use different 'NULL AS <something>' options for the actual command that imports
-# lines into monetdb: COPY <stuff> INTO <tablename> ...
-sql.copy.into <-
-	function( nullas , num.lines , tablename , tf2 , connection , delimiters ){
-		
-		# import the data into the database
-		sql.update <- paste0( "copy " , num.lines , " offset 2 records into " , tablename , " from '" , tf2 , "' using delimiters " , delimiters  , nullas ) 
-		dbSendQuery( connection , sql.update )
-		
-		# return true when it's completed
-		TRUE
-	}
-	
+# read.SAScii.monetdb depends on the SAScii package and the descr package
+# to install these packages, use the line:
+# install.packages( c( 'SAScii' , 'descr' , 'downloader' ) )
+library(SAScii)
+library(descr)
+library(downloader)
+library(MonetDBLite)
+library(DBI)
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # differences from the SAScii package's read.SAScii() --
 # 	um well a whole lot faster
 # 	no RAM issues
 # 	decimal division must be TRUE/FALSE (as opposed to NULL - the user must decide)
-# 	must read in the entire table
-#	requires RMonetDB and a few other packages
+#	requires MonetDBLite and a few other packages
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 read.SAScii.monetdb <-
@@ -28,10 +22,9 @@ read.SAScii.monetdb <-
 		# differences between parameters for read.SAScii() (from the R SAScii package)
 		# and read.SAScii.monetdb() documented here --
 		fn ,
-		sas_ri , 
+		sas_ri = NULL , 
 		beginline = 1 , 
 		zipped = F , 
-		# n = -1 , 						# no n parameter available for this - you must read in the entire table!
 		lrecl = NULL , 
 		skip.decimal.division = FALSE , # skipping decimal division defaults to FALSE for this function!
 		tl = F ,						# convert all column names to lowercase?
@@ -41,11 +34,16 @@ read.SAScii.monetdb <-
 		tf.path = NULL ,				# do temporary files need to be stored in a specific folder?
 										# this option is useful for keeping protected data off of random temporary folders on your computer--
 										# specifying this option creates the temporary file inside the folder specified
-		delimiters = "'\t'" ,			# delimiters for the monetdb COPY INTO command
-		sleep.between.col.updates = 0
-		
+		try_best_effort = FALSE ,
+		sas_stru = NULL ,
+		allow_zero_records = FALSE ,	# by default, expect more than zero records to be imported.
+		na_strings = ""					# by default, na strings are empty
 	) {
+		if( is.null( sas_ri ) & is.null( sas_stru ) ) stop( "either sas_ri= or sas_stru= must be specified" )
+		if( !is.null( sas_ri ) & !is.null( sas_stru ) ) stop( "either sas_ri= or sas_stru= must be specified, but not both" )
 
+		if( length( na_strings ) != 1 ) stop( "na_strings must have length of one" )
+	
 	# before anything else, create the temporary files needed for this function to run
 	# if the user doesn't specify that the temporary files get stored in a temporary directory
 	# just put them anywhere..
@@ -72,27 +70,37 @@ read.SAScii.monetdb <-
 	options( scipen = 1000000 )
 	
 	
-	# read.SAScii.monetdb depends on the SAScii package and the descr package
-	# to install these packages, use the line:
-	# install.packages( c( 'SAScii' , 'descr' , 'downloader' , 'R.utils' ) )
-	library(SAScii)
-	library(descr)
-	library(downloader)
-	library(R.utils)
-	
-	if ( !exists( "download.cache" ) ){
-		# load the download.cache and related functions
+	if ( !exists( "download_cached" ) ){
+		# load the download_cached and related functions
 		# to prevent re-downloading of files once they've been downloaded.
-		source_url( 
-			"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+		downloader::source_url( 
+			"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 			prompt = FALSE , 
 			echo = FALSE 
 		)
 	}
 
+	if( !is.null( sas_ri ) ){
 	
+		tf_sri <- tempfile()
+		
+		# if the sas read-in file needs to be downloaded..
+		if( any( grepl( 'url' , attr( file( sas_ri ) , "class" ) ) ) ){
+		
+			# download it.
+			download_cached( sas_ri , tf_sri , mode = 'wb' )
+		
+		# otherwise, just copy it over.
+		} else tf_sri <- sas_ri
+		
+		x <- parse.SAScii( tf_sri , beginline , lrecl )
 	
-	x <- parse.SAScii( sas_ri , beginline , lrecl )
+	} else {
+	
+		x <- sas_stru
+		
+	}
+	
 	
 	if( tl ) x$varname <- tolower( x$varname )
 	
@@ -123,14 +131,13 @@ read.SAScii.monetdb <-
 	#if the ASCII file is stored in an archive, unpack it to a temporary file and run that through read.fwf instead.
 	if ( zipped ){
 		#download the CPS repwgts zipped file
-		download.cache( fn , tf , mode = "wb" )
+		download_cached( fn , tf , mode = "wb" )
 		#unzip the file's contents and store the file name within the temporary directory
 		fn <- unzip( tf , exdir = td , overwrite = T )
 		
 		on.exit( file.remove( tf ) )
 	}
 
-	
 	
 	# if the overwrite flag is TRUE, then check if the table is in the database..
 	if ( overwrite ){
@@ -143,16 +150,17 @@ read.SAScii.monetdb <-
 		if ( tablename %in% dbListTables( connection ) ) stop( "table with this name already in database" )
 	}
 	
-	if ( sum( grepl( 'sample' , tolower( y$varname ) ) ) > 0 ){
-		print( 'warning: variable named sample not allowed in monetdb' )
-		print( 'changing column name to sample_' )
-		y$varname <- gsub( 'sample' , 'sample_' , y$varname )
-	}
+	for ( j in y$varname[ toupper( y$varname ) %in% MonetDBLite:::reserved_monetdb_keywords ] ){
 	
+		print( paste0( 'warning: variable named ' , j , ' not allowed in monetdb' ) )
+		print( paste0( 'changing column name to ' , j , '_' ) )
+		y[ y$varname == j , 'varname' ] <- paste0( j , "_" )
+
+	}
+
 	fields <- y$varname
 
-	colTypes <- ifelse( !y[ , 'char' ] , 'DOUBLE PRECISION' , 'VARCHAR(255)' )
-	
+	colTypes <- ifelse( !y[ , 'char' ] , 'DOUBLE PRECISION' , 'STRING' )
 
 	colDecl <- paste( fields , colTypes )
 
@@ -171,117 +179,92 @@ read.SAScii.monetdb <-
 	
 	# starts and ends
 	w <- abs ( x$width )
-	s <- 1
-	e <- w[ 1 ]
-	for ( i in 2:length( w ) ) {
-		s[ i ] <- s[ i - 1 ] + w[ i - 1 ]
-		e[ i ] <- e[ i - 1 ] + w[ i ]
-	}
-	
-	# create another file connection to the temporary file to store the fwf2csv output..
-	
-	# convert the fwf to a csv
-	# verbose = TRUE prints a message, which has to be captured.
-	fwf2csv( fn , tf2 , names = x$varname , begin = s , end = e , verbose = F )
-	on.exit( { file.remove( tf2 ) } )
-	
-	# ..and that's the number of lines in the file
-	num.lines <- countLines( tf2 )
-	
+		
 	# in speed tests, adding the exact number of lines in the file was much faster
 	# than setting a very high number and letting it finish..
 
-	# create the table in the database
-	dbSendQuery( connection , sql.create )
-	
-	##############################
-	# begin importation attempts #
+	full_table_editing_attempt <-
+		try({
+		
+			# create the table in the database
+			dbSendQuery( connection , sql.create )
 
-	# notice the differences in the NULL AS <stuff> for the five different attempts.
-	# monetdb importation is finnicky, so attempt a bunch of different COPY INTO tries
-	# using the sql.copy.into() function defined above
-	
-	# capture an error (without breaking)
-	te <- try( sql.copy.into( " NULL AS ''" , num.lines , tablename , tf2  , connection , delimiters )  , silent = TRUE )
+			#############################
+			# begin importation attempt #
 
-	# try another delimiter statement
-	if ( class( te ) == "try-error" ){
-		cat( 'attempt #1 broke, trying method #2' , "\r" )
-		te <- try( sql.copy.into( " NULL AS ' '" , num.lines , tablename , tf2  , connection , delimiters )  , silent = TRUE )
-	}
-
-	# try another delimiter statement
-	if ( class( te ) == "try-error" ){
-		cat( 'attempt #2 broke, trying method #3' , "\r"  )
-		te <- try( sql.copy.into( "" , num.lines , tablename , tf2  , connection , delimiters )  , silent = TRUE )
-	}
-	
-	# try another delimiter statement
-	if ( class( te ) == "try-error" ){
-		cat( 'attempt #3 broke, trying method #4' , "\r"  )
-		te <- try( sql.copy.into( paste0( " NULL AS '" , '""' , "'" ) , num.lines , tablename , tf2  , connection , delimiters )  , silent = TRUE )
-	}
-
-	if ( class( te ) == "try-error" ){
-		cat( 'attempt #4 broke, trying method #5' , "\r" )
-		# this time without error-handling.
-		sql.copy.into( " NULL AS '' ' '" , num.lines , tablename , tf2  , connection , delimiters ) 
-	}
-	
-	# end importation attempts #
-	############################	
-	
-	
-	# loop through all columns to:
-		# convert to numeric where necessary
-		# divide by the divisor whenever necessary
-	for ( l in seq( nrow(y) ) ){
-	
-		if ( 
-			( y[ l , "divisor" ] != 1 ) & 
-			!( y[ l , "char" ] )
-		) {
-			
-			sql <- 
-				paste( 
-					"UPDATE" , 
+			dbSendQuery(
+				connection , 
+				paste0(
+					"COPY INTO " , 
 					tablename , 
-					"SET" , 
-					y[ l , 'varname' ] , 
-					"=" ,
-					y[ l , 'varname' ] , 
-					"*" ,
-					y[ l , "divisor" ]
+					" FROM '" , 
+					normalizePath( fn ) , 
+					"' NULL AS " ,
+					paste0( "'" , na_strings , "'" ) ,
+					" " ,
+					if( try_best_effort ) " BEST EFFORT " ,
+					" FWF (" , 
+					paste0( w , collapse = ", " ) , 
+					")" 
 				)
-				
-			if ( !skip.decimal.division ){
-				dbSendQuery( connection , sql )
-			
-				# give the MonetDB mserver.exe a certain number of seconds to process each column
-				Sys.sleep( sleep.between.col.updates )
+			)
+
+			# end importation attempt #
+			###########################	
+
+
+			# loop through all columns to:
+			# convert to numeric where necessary
+			# divide by the divisor whenever necessary
+			for ( l in seq( nrow(y) ) ){
+
+				if ( ( y[ l , "divisor" ] != 1 ) & !( y[ l , "char" ] )	) {
+
+					sql <- paste( "UPDATE" , tablename , "SET" , y[ l , 'varname' ] , "=" , y[ l , 'varname' ] , "*" , y[ l , "divisor" ] )
+
+					if ( !skip.decimal.division ) dbSendQuery( connection , sql )
+
+
+				}
+
 			}
-		
-		}
+
+			# eliminate gap variables.. loop through every gap
+			if ( num.gaps > 0 ){
+				
+				for ( i in seq( num.gaps ) ) {
+
+					# create a SQL query to drop these columns
+					sql.drop <- paste0( "ALTER TABLE " , tablename , " DROP toss_" , i )
+
+					# and drop them!
+					dbSendQuery( connection , sql.drop )
+				}
+				
+			}
 			
-		cat( "  current progress: " , l , "of" , nrow( y ) , "columns processed.                    " , "\r" )
+		} , silent = TRUE )
 	
 
-	}
-	
-	# eliminate gap variables.. loop through every gap
-	if ( num.gaps > 0 ){
-		for ( i in seq( num.gaps ) ) {
-		
-			# create a SQL query to drop these columns
-			sql.drop <- paste0( "ALTER TABLE " , tablename , " DROP toss_" , i )
-			
-			# and drop them!
-			dbSendQuery( connection , sql.drop )
-		}
-	}
-	
 	# reset scientific notation length
 	options( scipen = user.defined.scipen )
-
-	TRUE
+	
+	# if anything about the table creation/import/editing went wrong, then remove the table and return the error
+	if( class( full_table_editing_attempt ) == 'try-error' ){
+	
+		try( dbRemoveTable( connection , tablename ) , silent = TRUE )
+		
+		stop( full_table_editing_attempt )
+		
+	} 
+	
+	num_recs <- dbGetQuery( connection , paste( "SELECT COUNT(*) FROM" , tablename ) )[ 1 , 1 ]
+	
+	if( num_recs == 0 && !allow_zero_records ) {
+		dbRemoveTable( connection , tablename )
+		stop( "imported table has zero records.  if this is expected, set allow_zero_records = TRUE" )
+	}
+	
+	num_recs
+	
 }

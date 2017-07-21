@@ -7,28 +7,19 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/ESS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/European%20Social%20Survey/structural%20equation%20modeling%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/European%20Social%20Survey/structural%20equation%20modeling%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # daniel oberski
 # daniel.oberski@gmail.com
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -37,7 +28,7 @@
 # prior to running this example script, the 2008 ess microdata files must be loaded as R data files     #
 # on the local machine. running the "download all microdata.R" script will create everything for you.   #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/European%20Social%20Survey/download%20all%20microdata.R  #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/European%20Social%20Survey/download%20all%20microdata.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will save a number of .rda files in C:/My Directory/ESS/ (or the working directory used)  #
 #########################################################################################################
@@ -365,17 +356,3 @@ lavTestLRT(reg.vals.fit.surv, reg.vals.fit.eq.surv, SB.classic = TRUE)
 # The two models are less dissimilar after survey design is accounted for.
 
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

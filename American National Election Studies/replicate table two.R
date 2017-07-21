@@ -8,7 +8,7 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/ANES/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/American%20National%20Election%20Studies/replicate%20table%20two.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/American%20National%20Election%20Studies/replicate%20table%20two.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
@@ -17,19 +17,10 @@
 # http://www.electionstudies.org/resources/papers/nes012492.pdf#page=27
 # column labeled "model 3" - and see footnote text-"model 3 employs the recommended method"
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -38,7 +29,7 @@
 # prior to running this replication script, all anes public use microdata files must be loaded as R data            #
 # files (.rda) on the local machine. running the "download and import.R" script will create these files.            #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/American%20National%20Election%20Studies/download%20and%20import.R  #
+# https://github.com/ajdamico/asdfree/blob/master/American%20National%20Election%20Studies/download%20and%20import.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will save a number of .rda files in C:/My Directory/ANES/ (or the working directory was chosen)       #
 #####################################################################################################################
@@ -77,7 +68,7 @@ library(survey)  # load survey package (analyzes complex design surveys)
 # this setting matches the MISSUNIT option in SUDAAN
 
 # load the 2008 time series file
-load( "./2008 Time Series Study/anes_timeseries_2008.rda" )
+load( "./anes_timeseries_2008/anes_timeseries_2008.rda" )
 
 # display the number of rows in the merged data set
 nrow( x )
@@ -230,7 +221,7 @@ summary( svy.logit )
 # so i ran the stata code included in this document here myself:
 # http://www.electionstudies.org/resources/papers/nes012492.pdf#page=28
 # and stata produced this output for me:
-# https://github.com/ajdamico/usgsd/blob/master/American%20National%20Election%20Studies/stata%20code%20and%20output%20almost%20matching%20table%20two.txt
+# https://github.com/ajdamico/asdfree/blob/master/American%20National%20Election%20Studies/stata%20code%20and%20output%20almost%20matching%20table%20two.txt
 # and - if you're looking ultra-carefully - you'll see my r output matches
 # what happens when i re-run their stata code myself exactly..
 # so i think there are just a few typos in their official pdf ;)
@@ -240,17 +231,3 @@ summary( svy.logit )
 # end of printing the exact contents of the column to the screen #
 ##################################################################
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

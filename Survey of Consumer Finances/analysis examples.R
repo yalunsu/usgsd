@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/SCF/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Survey%20of%20Consumer%20Finances/analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Survey%20of%20Consumer%20Finances/analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -33,7 +24,7 @@
 # prior to running this replication script, the scf public use microdata files must be loaded as R data files   #
 # on the local machine. running the "download all microdata.R" script will create this file for you.            #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Survey%20of%20Consumer%20Finances/download%20all%20microdata.R  #
+# https://github.com/ajdamico/asdfree/blob/master/Survey%20of%20Consumer%20Finances/download%20all%20microdata.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will save a number of .rda files in C:/My Directory/SCF/ (or the working directory was chosen)    #
 #################################################################################################################
@@ -51,7 +42,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( 'mitools' , 'survey' , 'downloader' ) )
+# install.packages( c( 'mitools' , 'survey' , 'downloader' , 'digest' ) )
 
 
 library(mitools)	# allows analysis of multiply-imputed survey data
@@ -97,7 +88,7 @@ options( scipen = 20 )
 
 
 # load two svyttest functions (one to conduct a df-adjusted t-test and one to conduct a multiply-imputed t-test)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Survey%20of%20Consumer%20Finances/scf.survey.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Survey%20of%20Consumer%20Finances/scf.survey.R" , prompt = FALSE )
 # now that this function has been loaded into r, you can view its source code by uncommenting the line below
 # scf.MIcombine
 # scf.svyttest
@@ -341,7 +332,7 @@ scf.svyttest( checking ~ factor( hhsex ) , scf.design )		# yes
 
 # the relationship between (checking account amount + the gender of the head of household) and net worth
 summary( 
-	MIcombine( 
+	scf.MIcombine( 
 		with( 
 			scf.design , 
 			svyglm( networth ~ checking + hhsex ) 
@@ -352,7 +343,7 @@ summary(
 
 # the relationship between (net worth + checking account amount) and the household having any debt
 summary( 
-	MIcombine( 
+	scf.MIcombine( 
 		with( 
 			scf.design , 
 			svyglm( hdebt ~ networth + checking , family = quasibinomial() ) 
@@ -429,17 +420,3 @@ barplot(
 	ylim = c( 0 , 1 )
 )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

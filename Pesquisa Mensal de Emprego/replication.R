@@ -6,15 +6,12 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/PME/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa%20Mensal%20de%20Emprego/replication.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Mensal%20de%20Emprego/replication.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # djalma pessoa
 # pessoad@gmail.com
@@ -22,16 +19,10 @@
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
 
 ################################################################################################################################################################################
 # this script matches the output sent to Djalma by Fabiane at COREN, the IBGE department responsible for the PME.  IBGE is the brazilian census bureau/stats agency.           #
-# email: https://github.com/ajdamico/usgsd/blob/master/Pesquisa%20Mensal%20de%20Emprego/pme%202013%2003%20differences%20based%20on%20weight%20variable%20rounding.pdf?raw=true #
+# email: https://github.com/ajdamico/asdfree/blob/master/Pesquisa%20Mensal%20de%20Emprego/pme%202013%2003%20differences%20based%20on%20weight%20variable%20rounding.pdf?raw=true #
 ################################################################################################################################################################################
 # beyond that specific example, the full table created by this replication script comes very close to the IBGE-produced statistics and coefficients of variation in this file: #
 # ftp://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Mensal_de_Emprego/Tabelas/2013/tab001112013.xls                                                                         #
@@ -45,7 +36,7 @@
 # prior to running this analysis script, all pme files must be loaded on the local machine.  running the      #
 # download all microdata script will create the series of data files (.rda) in the current working directory. #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Pesquisa%20Mensal%20de%20Emprego/download%20all%20microdata.R #
+# https://github.com/ajdamico/asdfree/blob/master/Pesquisa%20Mensal%20de%20Emprego/download%20all%20microdata.R #
 ###############################################################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -243,17 +234,3 @@ coefs
 # print the cv table to the screen
 cvs
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -1,3 +1,8 @@
+
+
+stop( "these instructions are obsolete.  instead, use https://github.com/hannesmuehleisen/MonetDBLite/blob/master/README.md" )
+
+
 # some asdfree scripts use a superfast (completely free) database program called monetdb.
 # here's how to install and configure it to work with r in two steps.
 
@@ -36,4 +41,4 @@
 	# 2) install two R packages that are not currently available on CRAN and install a few others..
 	# open up your R console and run these two separate installation commands without the # sign in front:
 	# install.packages( "sqlsurvey" , repos = c( "http://cran.r-project.org" , "http://R-Forge.R-project.org" ) , dep=TRUE )
-	# install.packages( c( 'SAScii' , 'descr' , 'survey' , 'MonetDB.R' , 'downloader' , 'R.utils' ) )
+	# install.packages( c( 'SAScii' , 'descr' , 'survey' , 'MonetDB.R' , 'downloader' , 'digest' , 'R.utils' , 'ff' ) )

@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/MEPS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Medical%20Expenditure%20Panel%20Survey/2010%20consolidated%20-%20analyze%20with%20brr.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Medical%20Expenditure%20Panel%20Survey/2010%20consolidated%20-%20analyze%20with%20brr.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -33,7 +24,7 @@
 # prior to running this analysis script, the linkage brr file and 2010 consolidated file must be loaded as an r data file (.rda) file on the local machine. #
 # running the 1996-2010 household component - download all microdata.R script will create an R data file (.rda)                                             #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/Medical%20Expenditure%20Panel%20Survey/1996-2010%20household%20component%20-%20download%20all%20microdata.R  #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/Medical%20Expenditure%20Panel%20Survey/1996-2010%20household%20component%20-%20download%20all%20microdata.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will create files "linkage - brr.rda" and "2010 - consolidated.rda" in C:/My Directory/MEPS (or wherever the working directory was chosen)    #
 #############################################################################################################################################################
@@ -429,17 +420,3 @@ barplot(
 	names.arg = c( "Northeast" , "Midwest" , "South" , "West" ) ,
 	ylim = c( 0 , .25 )
 )
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

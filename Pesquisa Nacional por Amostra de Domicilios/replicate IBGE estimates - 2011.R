@@ -8,15 +8,12 @@
 # options( encoding = "windows-1252" )		# # only macintosh and *nix users need this line
 # library(downloader)
 # setwd( "C:/My Directory/PNAD/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/replicate%20IBGE%20estimates%20-%202011.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/replicate%20IBGE%20estimates%20-%202011.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # djalma pessoa
 # pessoad@gmail.com
@@ -24,32 +21,26 @@
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
 
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
-
-##################################################################################################################################################################
-# this script matches the results of the SAS-SUDAAN code sent to me by Marcos Paulo Soares de Freitas at IBGE.  IBGE is the brazilian census bureau/stats agency #
-# email: https://github.com/ajdamico/usgsd/blob/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/2011%20PNAD%20SAS-SUDAAN%20e-mail%20from%20IBGE.pdf #
-# excel: https://github.com/ajdamico/usgsd/blob/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/ESTIMATES%20from%20IBGE.XLS                         #
-#  code: https://github.com/ajdamico/usgsd/blob/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/SAS-SUDAAN%20code%20from%20IBGE.sas                 #
-##################################################################################################################################################################
+####################################################################################################################################################################
+# this script matches the results of the SAS-SUDAAN code sent to me by Marcos Paulo Soares de Freitas at IBGE.  IBGE is the brazilian census bureau/stats agency   #
+# email: https://github.com/ajdamico/asdfree/blob/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/2011%20PNAD%20SAS-SUDAAN%20e-mail%20from%20IBGE.pdf #
+# excel: https://github.com/ajdamico/asdfree/blob/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/ESTIMATES%20from%20IBGE.XLS                         #
+#  code: https://github.com/ajdamico/asdfree/blob/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/SAS-SUDAAN%20code%20from%20IBGE.sas                 #
+####################################################################################################################################################################
 
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#####################################################################################################################################
-# prior to running this analysis script, the pnad 2011 file must be loaded as a database (.db) on the local machine.                #
-# running the 2011 download all microdata script will create this database file                                                     #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/download%20all%20microdata.R  #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# that script will create a file "pnad.db" with 'pnad2011' in C:/My Directory/PNAD or wherever the working directory was set        #
-#####################################################################################################################################
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#######################################################################################################################################
+# prior to running this analysis script, the pnad 2011 file must be loaded as a database (.db) on the local machine.                  #
+# running the 2011 download all microdata script will create this database file                                                       #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# https://github.com/ajdamico/asdfree/blob/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/download%20all%20microdata.R  #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# that script will create a file "pnad.db" with 'pnad2011' in C:/My Directory/PNAD or wherever the working directory was set          #
+#######################################################################################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 
@@ -69,12 +60,15 @@ if ( .Platform$OS.type != 'windows' ) print( 'non-windows users: read this block
 # # # end of non-windows system edits.
 
 
-# name the database (.db) file that should have been saved in the working directory
-pnad.dbname <- "pnad.db"
+# name the database files in the "MonetDB" folder of the current working directory
+pnad.dbfolder <- paste0( getwd() , "/MonetDB" )
 
-library(downloader)	# downloads and then runs the source() function on scripts from github
-library(survey)		# load survey package (analyzes complex design surveys)
-library(RSQLite) 	# load RSQLite package (creates database files in R)
+
+library(downloader)		# downloads and then runs the source() function on scripts from github
+library(survey)			# load survey package (analyzes complex design surveys)
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
+
 
 # set R to produce conservative standard errors instead of crashing
 # http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html
@@ -82,7 +76,7 @@ options( survey.lonely.psu = "adjust" )
 # this setting matches the MISSUNIT option in SUDAAN
 
 # load pnad-specific functions (to remove invalid SAS input script fields and postStratify a database-backed survey object)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa Nacional por Amostra de Domicilios/pnad.survey.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios/pnad.survey.R" , prompt = FALSE )
 
 
 ##############################################
@@ -98,8 +92,8 @@ sample.pnad <-
 		data = "pnad2011" ,
 		weights = ~pre_wgt ,
 		nest = TRUE ,
-		dbtype = "SQLite" ,
-		dbname = "pnad.db"
+		dbtype = "MonetDBLite" ,
+		dbname = pnad.dbfolder
 	)
 # note that the above object has been given the unwieldy name of `sample.pnad`
 # so that it's not accidentally used in analysis commands.
@@ -129,17 +123,3 @@ cv( svytotal( ~factor( v0302 ) , y ) )
 ################################
 # end of IBGE code replication #
 ################################
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

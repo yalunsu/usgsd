@@ -1,3 +1,8 @@
+
+
+stop( "these instructions are obsolete.  instead, use https://github.com/hannesmuehleisen/MonetDBLite/blob/master/README.md" )
+
+
 # # # # # # # # # # # # # # #
 # warning: monetdb required #
 # # # # # # # # # # # # # # #
@@ -6,7 +11,7 @@
 ###########################################################################################################################################
 # prior to running this database creation script, monetdb must be installed on the local machine. follow each step outlined on this page: #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/MonetDB/monetdb%20installation%20instructions.R                                           #
+# https://github.com/ajdamico/asdfree/blob/master/MonetDB/monetdb%20installation%20instructions.R                                           #
 ###########################################################################################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -14,6 +19,7 @@
 # if you've successfully installed monetdb to your machine,
 # you should be able to initiate your first database with these commands:
 
+library(DBI)			# load the DBI package (implements the R-database coding)
 library(MonetDB.R)	# load the MonetDB.R package (connects r to a monet database)
 
 
@@ -98,7 +104,7 @@ dbport <- 50000
 batfile <- "C:/My Directory/MonetDB/test.bat"		# # note for mac and *nix users: `test.bat` might be `test.sh` instead
 
 # second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
+monetdb.server.start( batfile )
 
 # third: your five lines to make a monet database connection.
 # just like above, mine look like this:
@@ -107,6 +113,9 @@ dbport <- 50000
 
 monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
 db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
+
+# fourth: store the process id
+pid <- as.integer( dbGetQuery( db , "SELECT value FROM env() WHERE name = 'monet_pid'" )[[1]] )
 
 
 # # # # run your analysis commands # # # #
@@ -127,20 +136,6 @@ monetdb.server.stop( pid )
 # open up a fresh instance of r and follow the instructions at:
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/MonetDB/monetdb%20database%20accessing%20instructions.R #
+# https://github.com/ajdamico/asdfree/blob/master/MonetDB/monetdb%20database%20accessing%20instructions.R #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

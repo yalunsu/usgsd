@@ -1,40 +1,30 @@
 # analyze survey data for free (http://asdfree.com) with the r language
 # american time use survey
-# 2003 - 2013
+# all available years
 
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/ATUS/" )
-# years.to.download <- c( 2003:2013 , "0312" , "0313" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/American%20Time%20Use%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/American%20Time%20Use%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
 
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
-
-################################################################
-# Analyze the 2003 - 2013 American Time Use Survey file with R #
-################################################################
+####################################################
+# Analyze the American Time Use Survey file with R #
+####################################################
 
 
 # set your working directory.
-# the ATUS 2003 - 2013 data files will be stored here
+# the ATUS data files will be stored here
 # after downloading and importing them.
 # use forward slashes instead of back slashes
 
@@ -44,22 +34,8 @@
 
 
 
-# define which years to download #
-
-# uncomment this line to download all available data sets
-# uncomment this line by removing the `#` at the front
-# years.to.download <- c( 2003:2013 , "0312" , "0313" )
-
-# uncomment this line to only download 2010
-# years.to.download <- 2010
-
-# uncomment this line to download, for example,
-# 2005 and 2009-2011 and the '03-'12 multi-year file
-# years.to.download <- c( 2005 , 2009:2011 , "0312" )
-
-
 # remove the # in order to run this install.packages line only once
-# install.packages( "downloader" )
+# install.packages( "downloader" , "digest" )
 
 
 ############################################
@@ -79,13 +55,28 @@ http.dir <- "http://www.bls.gov/tus/special.requests/"
 tf <- tempfile()
 
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
+
+
+# figure out which years are available to download
+years.to.download <-
+	unique( 
+		gsub( 
+			"(.*)/datafiles_([0-9][0-9][0-9][0-9]).htm(.*)" , 
+			"\\2" , 
+			grep( 
+				"/datafiles_([0-9][0-9][0-9][0-9]).htm" , 
+				readLines( "http://www.bls.gov/tus/" ) , 
+				value = TRUE 
+			) 
+		) 
+	)
 
 
 # begin looping through every atus year
@@ -106,7 +97,7 @@ for ( year in years.to.download ){
 
 	# download the contents of the website
 	# to the temporary file
-	download.cache( http.page , tf )
+	download_cached( http.page , tf )
 
 	# read the contents of that temporary file
 	# into working memory (a character object called `txt`)
@@ -144,7 +135,7 @@ for ( year in years.to.download ){
 		fn <- paste0( http.dir , curFile , ".zip" )
 		
 		# download the file
-		download.cache( fn , tf , mode = 'wb' )
+		download_cached( fn , tf , mode = 'wb' )
 		
 		# extract the contents of the zipped file
 		# into the current year-specific directory
@@ -203,17 +194,3 @@ for ( year in years.to.download ){
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste0( "all done.  you should set the file " , file.path( getwd() ) , " read-only so you don't accidentally alter these tables." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

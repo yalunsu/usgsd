@@ -10,26 +10,16 @@
 # setwd( "C:/My Directory/NIBRS/" )
 # your.username <- 'your@login.com'
 # your.password <- 'yourpassword'
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
 # rm( studies.to.download ) # or pick a few # studies.to.download <- c( "2012 Extract Files" , "2004" , "2009 Uniform Crime Reporting" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Incident-Based%20Reporting%20System/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Incident-Based%20Reporting%20System/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 #######################################################################################
@@ -67,36 +57,6 @@
 # # # # # # # # # # # # # # # # #
 
 
-
-# # # # # # # # # # # # # # #
-# warning: monetdb required #
-# # # # # # # # # # # # # # #
-
-
-# windows machines and also machines without access
-# to large amounts of ram will often benefit from
-# the following option, available as of MonetDB.R 0.9.2 --
-# remove the `#` in the line below to turn this option on.
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
-# -- whenever connecting to a monetdb server,
-# this option triggers sequential server processing
-# in other words: single-threading.
-# if you would prefer to turn this on or off immediately
-# (that is, without a server connect or disconnect), use
-# turn on single-threading only
-# dbSendQuery( db , "set optimizer = 'sequential_pipe';" )
-# restore default behavior -- or just restart instead
-# dbSendQuery(db,"set optimizer = 'default_pipe';")
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-###################################################################################################################################
-# prior to running this analysis script, monetdb must be installed on the local machine.  follow each step outlined on this page: #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/MonetDB/monetdb%20installation%20instructions.R                                   #
-###################################################################################################################################
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
 # # # # # # # # # # # # # # # #
 # warning: this takes a while #
 # # # # # # # # # # # # # # # #
@@ -123,7 +83,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "SAScii" , "RCurl" , "descr" , "downloader" , "R.utils" , "stringr" ) )
+# install.packages( c( "MonetDBLite" , "RCurl" , "SAScii" , "descr" , "downloader" , "digest" , "stringr" , "R.utils" ) )
 
 
 
@@ -131,112 +91,44 @@ library(SAScii) 	# load the SAScii package (imports ascii data with a SAS script
 library(RCurl)		# load RCurl package (downloads https files)
 library(stringr)	# load stringr package (manipulates character strings easily)
 library(downloader)	# downloads and then runs the source() function on scripts from github
-library(MonetDB.R)	# load MonetDB.R package (creates database files in R)
+library(MonetDBLite)
+library(DBI)		# load the DBI package (implements the R-database coding)
 library(descr)		# load the descr package (converts fixed-width files to delimited files)
 library(R.utils)	# load the R.utils package (counts the number of lines in a file quickly)
 library(foreign)	# load foreign package (converts data files into R)
 
 
-# configure a monetdb database for the nibrs on windows #
+# configure a monetdb database for the nibrs #
 
-# note: only run this command once.  this creates an executable (.bat) file
-# in the appropriate directory on your local disk.
-# when adding new files or adding a new year of data, this script does not need to be re-run.
+# name the database files in the "MonetDB" folder of the current working directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
 
-# create a monetdb executable (.bat) file for the national incident-based reporting system
-batfile <-
-	monetdb.server.setup(
-					
-					# set the path to the directory where the initialization batch file and all data will be stored
-					database.directory = paste0( getwd() , "/MonetDB" ) ,
-					# must be empty or not exist
-					
-					# find the main path to the monetdb installation program
-					monetdb.program.path = 
-						ifelse( 
-							.Platform$OS.type == "windows" , 
-							"C:/Program Files/MonetDB/MonetDB5" , 
-							"" 
-						) ,
-					# note: for windows, monetdb usually gets stored in the program files directory
-					# for other operating systems, it's usually part of the PATH and therefore can simply be left blank.
-										
-					# choose a database name
-					dbname = "nibrs" ,
-					
-					# choose a database port
-					# this port should not conflict with other monetdb databases
-					# on your local computer.  two databases with the same port number
-					# cannot be accessed at the same time
-					dbport = 50014
-	)
-
-	
-# this next step is so very important.
-
-# store a line of code that will make it easy to open up the monetdb server in the future.
-# this should contain the same file path as the batfile created above,
-# you're best bet is to actually look at your local disk to find the full filepath of the executable (.bat) file.
-# if you ran this script without changes, the batfile will get stored in C:\My Directory\NIBRS\MonetDB\nibrs.bat
-
-# here's the batfile location:
-batfile
-
-# note that since you only run the `monetdb.server.setup()` function the first time this script is run,
-# you will need to note the location of the batfile for future MonetDB analyses!
-
-# in future R sessions, you can create the batfile variable with a line like..
-# batfile <- "C:/My Directory/NIBRS/MonetDB/nibrs.bat"		# # note for mac and *nix users: `nibrs.bat` might be `nibrs.sh` instead
-# obviously, without the `#` comment character
-
-# hold on to that line for future scripts.
-# you need to run this line *every time* you access
-# the national incident-based reporting system files with monetdb.
-# this is the monetdb server.
-
-# two other things you need: the database name and the database port.
-# store them now for later in this script, but hold on to them for other scripts as well
-dbname <- "nibrs"
-dbport <- 50014
-
-# now the local windows machine contains a new executable program at "c:\my directory\nibrs\monetdb\nibrs.bat"
+# open the connection to the monetdblite database
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 
 
 
-# it's recommended that after you've _created_ the monetdb server,
-# you create a block of code like the one below to _access_ the monetdb server
+# this script's download files should be incorporated in download_cached's hash list
+options( "download_cached.hashwarn" = TRUE )
+# warn the user if the hash does not yet exist
 
+# some download caching
+downloader::source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , prompt = FALSE , echo = FALSE)
 
-######################################################################
-# lines of code to hold on to for all other `nibrs` monetdb analyses #
+download_get_filename <- function(url, curl=getCurlHandle(), ...) {
+	h <- RCurl::basicHeaderGatherer()
+	RCurl::curlSetOpt(nobody=T, curl=curl)
+	RCurl::getURL(url, headerfunction = h$update, curl=curl, ...)
+	gsub( '(.*)\\"(.*)\\"' , "\\2" , h$value()[["Content-Type"]])
+}
 
-# first: specify your batfile.  again, mine looks like this:
-# uncomment this line by removing the `#` at the front..
-# batfile <- "C:/My Directory/NIBRS/MonetDB/nibrs.bat"		# # note for mac and *nix users: `nibrs.bat` might be `nibrs.sh` instead
-
-# second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
-
-# third: your five lines to make a monet database connection.
-# just like above, mine look like this:
-dbname <- "nibrs"
-dbport <- 50014
-
-monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
-db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
-
-# disconnect from the current monet database
-dbDisconnect( db )
-
-# and close it using the `pid`
-monetdb.server.stop( pid )
-
-# end of lines of code to hold on to for all other `nibrs` monetdb analyses #
-#############################################################################
-
-
+download_to_filename <- function(url, dlfile, curl=getCurlHandle(), ...) {
+	RCurl::curlSetOpt(nobody=F, httpget=T, curl=curl)
+	writeBin(RCurl::getBinaryURL(url = url, curl=curl, ...), dlfile)
+	0L
+}
+# end download caching
 
 
 # follow the authentication technique described on this stackoverflow post
@@ -245,7 +137,7 @@ monetdb.server.stop( pid )
 
 
 # load the read.SAScii.monetdb function (a variant of read.SAScii that creates a database directly)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/MonetDB/read.SAScii.monetdb.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/MonetDB/read.SAScii.monetdb.R" , prompt = FALSE )
 
 # download the contents of the webpage hosting all nibrs data files
 all.nibrs.studies <- getURL( "http://www.icpsr.umich.edu/icpsrweb/NACJD/series/00128/studies?archive=NACJD&q=&paging.rows=10000&sortBy=7" )
@@ -344,25 +236,9 @@ for ( i in numbers.to.download ){
 	
 	# loop through each of the documentation files
 	for ( j in all.docs ){
-	
-		# write out the name of the documentation filepath
 		dp <- paste0( "http://www.icpsr.umich.edu/cgi-bin/" , j )
-		
-		# download the current document
-		this.doc <- getBinaryURL( dp )
-	
-		# initiate a header
-		h <- basicHeaderGatherer()
-		
-		# pull the filename off of the server
-		try( doc <- getURI( dp , headerfunction = h$update ) , silent = TRUE )
-		
-		# extract the name from that `h` object
-		lfn <- gsub( '(.*)\\"(.*)\\"' , "\\2" , h$value()[["Content-Type"]] )
-		
-		# save the actual downloaded-file to the filepath specified on the local disk
-		writeBin( this.doc , paste0( this.dir , "/" , lfn ) )
-	
+		download_cached(dp, paste0(this.dir, "/", 
+			download_get_filename(dp)), usecache=T, FUN=download_to_filename)
 	}
 	
 	# determine which files on the study homepage are sas importation files
@@ -405,11 +281,12 @@ for ( i in numbers.to.download ){
 		# post your username and password to the umich server
 		login.page <- 
 			postForm(
-				"http://www.icpsr.umich.edu/ticketlogin" , 
+				"https://www.icpsr.umich.edu/rpxlogin" , 
 				email = your.username ,
 				password = your.password ,
 				path = "NACJD" ,
 				request_uri = dp ,
+				app_seq = "" ,
 				style = "POST" ,
 				curl = curl 
 			)
@@ -427,28 +304,10 @@ for ( i in numbers.to.download ){
 				style = "POST" ,
 				curl = curl
 			)
-	
-		# download the current sas file onto the local disk
-		this.sas_ri <- getBinaryURL( dp , curl = curl )
+		
+		lfn <- download_get_filename(dp, curl=curl)
+		download_cached(dp, paste0(this.dir, "/", lfn), usecache=T, FUN=download_to_filename, curl=curl)
 
-		# initiate a heading object
-		h <- basicHeaderGatherer()
-
-		# pull the filename off of the server
-		try( doc <- getURI( dp , headerfunction = h$update , curl = curl ) , silent = TRUE )
-		
-		# extract the name from that `h` object
-		lfn <- gsub( '(.*)\\"(.*)\\"' , "\\2" , h$value()[["Content-Type"]] )
-		
-		# save the actual downloaded-file to the filepath specified on the local disk
-		writeBin( this.sas_ri , paste0( this.dir , "/" , lfn ) )
-	
-		# remove the downloaded file from working memory
-		rm( this.sas_ri , curl , h )
-		
-		# clear up RAM
-		gc()
-	
 		# unzip the downloaded file within the local drive
 		z <- unzip( paste0( this.dir , "/" , lfn ) , exdir = this.dir )
 
@@ -477,23 +336,17 @@ for ( i in numbers.to.download ){
 		if ( grepl( "gz$" , tolower( data.file ) ) ){
 		
 			# gunzip it and overwrite itself in the current directory
-			data.file <- gunzip( data.file , exdir = dirname( data.file ) )
+			data.file <- gunzip( data.file )
 			
 		}
 		
 		# let the user/viewer know whatcha doin'
 		print( paste( "currently importing" , data.file ) )
-		
+		dbBegin(db)
 		# determine the tablename within the big database
 		tablename <- gsub( "(.*)/ICPSR_(.*)/(DS|ds)(.*)" , "x\\2_\\4" , dirname( data.file ) )
 		# it should be x[study number]_[dataset number]
 		
-		# launch the current monet database
-		pid <- monetdb.server.start( batfile )
-		
-		# immediately connect to it
-		db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
 		# in most cases, the sas importation script should start right at the beginning..
 		beginline <- 1
 		
@@ -575,9 +428,6 @@ for ( i in numbers.to.download ){
 					# loop through each variable to recode
 					for ( k in seq_along( vtr ) ){
 				
-						# print current progress, since this takes oh so long
-						cat( "blanking out missings of variable" , vtr[ k ] , "..." , k , "of" , length( vtr ) , '                 \r' )
-						
 						# overwrite sas syntax with r syntax in the patterns to match commands.
 						r.command <- gsub( "=" , "==" , ptm[ k ] )
 						r.command <- gsub( " or " , "|" , r.command )
@@ -598,6 +448,8 @@ for ( i in numbers.to.download ){
 					# remove the current data table from the database
 					dbRemoveTable( db , tablename )
 					
+					names( x ) <- tolower( names( x ) )
+					
 					# ..and overwrite it with the data.frame object
 					# that you've just blessedly cleaned up
 					dbWriteTable( db , tablename , x )
@@ -616,28 +468,17 @@ for ( i in numbers.to.download ){
 								
 				# if there are any variables that need system missing-ing
 				if( length( mvr ) == 1 ){
-					
-					# loop through each variable to recode
-					for ( k in seq_along( vtr ) ){
-					
-						# print your progress, again, this takes a whiiiiiile
-						cat( "blanking out missings of variable" , vtr[ k ] , "..." , k , "of" , length( vtr ) , '                 \r' )
-						
-						# update the current data table's variable-to-replace (vtr) with missing (NULL) whenever the pattern-to-match is matched.
-						dbSendQuery( 
-							db , 
-							paste(
-								"UPDATE" ,
-								tablename ,
-								"SET" ,
-								vtr[ k ] ,
-								" = NULL WHERE" ,
-								ptm[ k ]
-							)
+					dbSendQuery( 
+						db , 
+						paste(
+							"UPDATE" ,
+							tablename ,
+							"SET" ,
+							vtr ,
+							" = NULL WHERE" ,
+							ptm, ";", collapse=" "
 						)
-						
-					}
-					
+					)
 				}
 				
 			}
@@ -660,16 +501,10 @@ for ( i in numbers.to.download ){
 			}
 			
 		}
-		
+		dbCommit(db)
 		# clear up RAM	
 		gc()
-			
-		# disconnect from the current monetdb session
-		dbDisconnect( db )
-				
-		# and close it using the `pid`
-		monetdb.server.stop( pid )
-	
+		
 	}
 	
 	# at the end of each of these runs, the temporary directory
@@ -677,72 +512,12 @@ for ( i in numbers.to.download ){
 	# and unzips will eat up all the storage on a smaller hard disk
 	file.remove( list.files( tempdir() , full.names = TRUE ) )
 	
-	closeAllConnections()
-	
 }
 
+	
+# disconnect from the current monetdb session
+dbDisconnect( db , shutdown = TRUE )
 
 # once complete, this script does not need to be run again.
 # instead, use one of the national incident-based reporting system
 # analysis scripts which utilize this central monetdb file
-
-
-# wait ten seconds, just to make sure any previous servers closed
-# and you don't get a gdk-lock error from opening two-at-once
-Sys.sleep( 10 )
-
-
-
-######################################################################
-# lines of code to hold on to for all other `nibrs` monetdb analyses #
-
-# first: specify your batfile.  again, mine looks like this:
-# uncomment this line by removing the `#` at the front..
-# batfile <- "C:/My Directory/NIBRS/MonetDB/nibrs.bat"		# # note for mac and *nix users: `nibrs.bat` might be `nibrs.sh` instead
-
-# second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
-
-# third: your five lines to make a monet database connection.
-# just like above, mine look like this:
-dbname <- "nibrs"
-dbport <- 50014
-
-monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
-db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
-
-# # # # run your analysis commands # # # #
-
-
-# disconnect from the current monet database
-dbDisconnect( db )
-
-# and close it using the `pid`
-monetdb.server.stop( pid )
-
-# end of lines of code to hold on to for all other `nibrs` monetdb analyses #
-#############################################################################
-
-
-
-
-# unlike most post-importation scripts, the monetdb directory cannot be set to read-only #
-message( paste( "all done.  DO NOT set" , getwd() , "read-only or subsequent scripts will not work." ) )
-
-message( "got that? monetdb directories should not be set read-only." )
-
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -8,24 +8,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/CPS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Current%20Population%20Survey/2012%20asec%20-%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Current%20Population%20Survey/2012%20asec%20-%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -38,16 +29,16 @@
 
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-###################################################################################################################################
-# prior to running this analysis script, the cps march 2012 file must be loaded as a database (.db) on the local machine.         #
-# running the 2012 download all microdata script will create this database file                                                   #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/Current%20Population%20Survey/2005-2012%20asec%20-%20download%20all%20microdata.R #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# that script will create a file "cps.asec.db" with 'asec12' in C:/My Directory/ACS or wherever the working directory was set     #
-###################################################################################################################################
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#####################################################################################################################################
+# prior to running this analysis script, the cps march 2012 file must be loaded as a database (.db) on the local machine.           #
+# running the 2012 download all microdata script will create this database file                                                     #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/Current%20Population%20Survey/download%20all%20microdata.R              #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# that script will create a file "cps.asec.db" with 'asec12' in C:/My Directory/ACS or wherever the working directory was set       #
+#####################################################################################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 # set your working directory.
@@ -61,18 +52,9 @@
 
 
 
-# remove the # in order to run this install.packages line only once
-# install.packages( c ( "survey" , "RSQLite" ) )
-
-
-library(survey)		# load survey package (analyzes complex design surveys)
-library(RSQLite) 	# load RSQLite package (creates database files in R)
-
-# set R to produce conservative standard errors instead of crashing
-# http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html
-options( survey.lonely.psu = "adjust" )
-# this setting matches the MISSUNIT option in SUDAAN
-
+library(survey)				# load survey package (analyzes complex design surveys)
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
 
 
 # if this option is set to TRUE
@@ -82,6 +64,10 @@ options( survey.replicates.mse = TRUE )
 # R will exactly match Stata without the MSE option results
 
 # Stata svyset command notes can be found here: http://www.stata.com/help.cgi?svyset
+
+
+# name the database files in the "MonetDB" folder of the current working directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
 
 
 #######################################
@@ -98,9 +84,13 @@ y <-
 		rho = (1-1/sqrt(4)),
 		data = "asec12" ,
 		combined.weights = T ,
-		dbtype = "SQLite" ,
-		dbname = "cps.asec.db"
+		dbtype = "MonetDBLite" ,
+		dbname = dbfolder
 	)
+
+# workaround for a bug in survey::svrepdesign.character
+y$mse <- TRUE
+
 
 	
 #####################
@@ -130,9 +120,9 @@ svytotal(
 # note that this is exactly equivalent to summing up the weight variable
 # from the original cps data frame
 
-db <- dbConnect( SQLite() , "cps.asec.db" )			# connect to the SQLite database (.db)
-dbGetQuery( db , 'select sum( marsupwt ) from asec12' )	# run a single query, summing the person-weight
-dbDisconnect( db )									# disconnect from the database
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )					# connect to the SQLite database (.db)
+dbGetQuery( db , 'select sum( marsupwt ) from asec12' )		# run a single query, summing the person-weight
+dbDisconnect( db )											# disconnect from the database but do not shut it down
 
 
 # the civilian, non-institutionalized population of the united states #
@@ -293,17 +283,3 @@ barplot(
 	names.arg = c( "Employed" , "Not Employed" ) ,
 	ylim = c( 0 , .6 )
 )
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

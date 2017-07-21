@@ -6,29 +6,20 @@
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
 # # # # # # # # # # # # # # # # #
-# options( encoding = "windows-1252" )		# # only macintosh and 
+# options( encoding = "windows-1252" )		# # only macintosh and *nix users need this line
 # library(downloader)
 # setwd( "C:/My Directory/PSID/" )
 # your.username <- 'your@login.com'
 # your.password <- 'yourpassword'
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Panel%20Study%20of%20Income%20Dynamics/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Panel%20Study%20of%20Income%20Dynamics/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ####################################################################################
@@ -162,7 +153,7 @@ params <-
 # initiate a function that requires..
 save.psid <-
 	# ..a file number, a save name, the parameters list, and the curl options
-	function( file , name , params , curl ){
+	function( file , name_category , params , curl ){
 
 		# logs into the umich form
 		html = postForm('http://simba.isr.umich.edu/U/Login.aspx', .params = params, curl = curl)
@@ -191,37 +182,46 @@ save.psid <-
 		z <- unzip( tf , exdir = td )
 	
 		# figure out which file contains the data (so no readmes or technical docs)
-		fn <- z[ grepl( ".txt" , tolower( z ) , fixed = TRUE ) & ! grepl( "_vdm|readme|doc|errata" , tolower( z ) ) ]
+		fns <- z[ grepl( ".txt" , tolower( z ) , fixed = TRUE ) & ! grepl( "_vdm|readme|doc|errata" , tolower( z ) ) ]
 		
-		# figure out which file contains the sas importation script
-		sas_ri <- z[ grepl( '.sas' , z , fixed = TRUE ) ]
-
-		# read the text file directly into an R data frame with `read.SAScii`
-		x <- read.SAScii( fn , sas_ri )
-
-		# convert all column names to lowercase
-		names( x ) <- tolower( names( x ) )
-		
-		# add a `one` column
-		x$one <- 1
+		# loop through all of the files and convert them to R data frames
+		for (fn in fns) {
+  		
+			# the sas importation script should have the same filename as the data, except with a .sas extension
+			sas_ri <- gsub(".txt", ".sas", fn)
+			if(file.exists(sas_ri)) {
+      
+				# read the text file directly into an R data frame with `read.SAScii`
+				x <- read.SAScii( fn , sas_ri)
+  
+				# convert all column names to lowercase
+				names( x ) <- tolower( names( x ) )
+  
+				# add a `one` column
+				x$one <- 1
+  
+				# name the dataset combining the data category with the individual file name
+				name<-paste0(name_category, "_", gsub(".txt","",tolower(basename(fn)))) 
+  
+				# copy the data.frame `x` over to whatever the `name` parameter was supposed to be
+				assign( name , x )
+  
+				# save the renamed data.frame to an R data file (.rda)
+				save( list = name , file = paste0( name , '.rda' ) )
+  
+				# delete the data.frame `x`
+				rm( x )
+  
+				# delete the data.frame (name)
+				rm( list = name )
+  
+				# clear up RAM
+				gc()
+			}
+		}
 		
 		# remove the files you'd downloaded from the local disk
 		file.remove( tf , z )
-	
-		# copy the data.frame `x` over to whatever the `name` parameter was supposed to be
-		assign( name , x )
-		
-		# save the renamed data.frame to an R data file (.rda)
-		save( list = name , file = paste0( name , '.rda' ) )
-		
-		# delete the data.frame `x`
-		rm( x )
-
-		# delete the data.frame (name)
-		rm( list = name )
-		
-		# clear up RAM
-		gc()
 		
 		# confirm that the function worked by returning TRUE
 		TRUE
@@ -247,24 +247,12 @@ for ( i in seq( nrow( family ) ) ){
 	save.psid( family[ i , 'file' ] , paste0( "fam" , family[ i , 'year' ] ) , params , curl )
 }
 
-# automatically down the marriage, childbirth, parentid, and cross-year individual files
-# the exact same way, with the exact samee pre-defined function
+# automatically down the marriage, childbirth, parentid, cross-year individual, and 
+# child development supplement files the exact same way, with the exact samee pre-defined function
 save.psid( 1121 , 'marriage' , params , curl )
 save.psid( 1109 , 'childbirth' , params , curl )
 save.psid( 1123 , 'parentid' , params , curl )
 save.psid( 1053 , 'ind' , params , curl )
+save.psid( 1174 , 'cds02' , params , curl )
+save.psid( 1170 , 'cds07' , params , curl )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

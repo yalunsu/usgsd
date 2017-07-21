@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/PIAAC/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Programme%20for%20the%20International%20Assessment%20of%20Adult%20Competencies/download%20import%20and%20design.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Programme%20for%20the%20International%20Assessment%20of%20Adult%20Competencies/download%20import%20and%20design.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -36,7 +27,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "survey" , "mitools" , "downloader" ) )
+# install.packages( c( "survey" , "mitools" , "downloader" , "digest" ) )
 
 
 # set your PIAAC data directory
@@ -63,10 +54,10 @@ library(mitools) 		# load mitools package (analyzes multiply-imputed data)
 library(downloader)			# downloads and then runs the source() function on scripts from github
 
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
@@ -110,7 +101,7 @@ for ( i in csv.fns ){
 	csv.filepath <- paste0( oecd.csv.website , i , ".csv" )
 
 	# save the current csv file to the temporary location on the local disk
-	download.cache( csv.filepath , tf , mode = 'wb' )
+	download_cached( csv.filepath , tf , mode = 'wb' )
 
 	# import the csv file into working memory
 	x <- read.csv( tf , stringsAsFactors = FALSE )
@@ -226,17 +217,3 @@ file.remove( tf )
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste0( "all done.  you should set the directory " , getwd() , " read-only so you don't accidentally alter these tables." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

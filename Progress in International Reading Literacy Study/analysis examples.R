@@ -7,24 +7,15 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/PIRLS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Progress%20in%20International%20Reading%20Literacy%20Study/analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Progress%20in%20International%20Reading%20Literacy%20Study/analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -32,7 +23,7 @@
 # prior to running this analysis script, the piaac multiply-imputed tables must be loaded as a replicate-weighted survey object on the    #
 # local machine. running the download, import, and design script will create an r data file (.rda) with whatcha need.                     #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# "https://raw.github.com/ajdamico/usgsd/master/Progress%20in%20International%20Reading%20Literacy%20Study/download%20import%20and%20design.R"  ###
+# "https://raw.githubusercontent.com/ajdamico/asdfree/master/Progress%20in%20International%20Reading%20Literacy%20Study/download%20import%20and%20design.R"  ###
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will create the files "asg_ash_design.rda" and "asg_design.rda" in C:/My Directory/PIRLS or wherever the working directory was set. #
 ###################################################################################################################################################
@@ -49,7 +40,7 @@ library(downloader)		# downloads and then runs the source() function on scripts 
 
 # load the multiply-imputed design combination alteration function (scf.MIcombine)
 # from the survey of consumer finances directory.  that function's algorithm is what pirls uses.
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Survey%20of%20Consumer%20Finances/scf.survey.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Survey%20of%20Consumer%20Finances/scf.survey.R" , prompt = FALSE )
 
 
 # the pirls directory contains two types of survey design objects:
@@ -317,17 +308,3 @@ rm( aust_design , asg_design )
 # clear up RAM
 gc()
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

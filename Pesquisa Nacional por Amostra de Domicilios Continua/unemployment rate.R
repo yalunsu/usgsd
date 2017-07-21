@@ -6,15 +6,12 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/PNADC/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios%20Continua/unemployment%20rate.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios%20Continua/unemployment%20rate.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # djalma pessoa
 # pessoad@gmail.com
@@ -22,19 +19,13 @@
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 ###############################################################################################################
 # prior to running this analysis script, all pnadc files must be loaded on the local machine.  running the    #
 # download all microdata script will create the series of data files (.rda) in the current working directory. #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios%20Continua/download%20all%20microdata.R  #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/Pesquisa%20Nacional%20por%20Amostra%20de%20Domicilios%20Continua/download%20all%20microdata.R  #
 ###############################################################################################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -138,23 +129,31 @@ x <- merge( x , uf , all.x = TRUE )
 # double-check the result by printing the unweighted counts.
 table( x[ , c( 'uf' , 'uf_name' ) ] , useNA = 'always' )
 
-	
 
 ###############################
 # survey design for the pnadc #
 ###############################
 
-warning( "ibge has not yet released information to calculate a confidence interval" )
-warning( "this survey design will produce incorrect standard errors, variances, coefficients of variation" )
-
-w <-
+# preliminary survey design
+pre_w <-
 	svydesign(
 		ids = ~ upa , 
-		strata = ~ uf , 
-		weights = ~ v1028 , 
+		strata = ~ estrato , 
+		weights = ~ v1027 , 
 		data = x ,
 		nest = TRUE
 	)
+# warning: do not use `pre_w` in your analyses!
+# you must use the `w` object created below.
+
+# post-stratification targets
+df_pos <- data.frame( posest = unique( x$posest ) , Freq = unique( x$v1029 ) )
+
+# final survey design object
+w <- postStratify( pre_w , ~posest , df_pos )
+
+# remove the `x` data.frame object and the `pre_w` design before stratification
+rm( x , pre_w )
 
 #################################
 # end of survey design creation #
@@ -338,17 +337,3 @@ result <- cbind( round( coef( unemp.r ) * 100 , 1 ) , c( "norte" , "nordeste" , 
 # http://saladeimprensa.ibge.gov.br/noticias?view=noticia&id=1&busca=1&idnoticia=2881
 result
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

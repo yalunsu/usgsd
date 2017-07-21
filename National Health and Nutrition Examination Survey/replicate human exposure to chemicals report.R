@@ -20,7 +20,7 @@
 # options( encoding = "windows-1252" )		# # only macintosh and *nix users need this line
 # library(downloader)
 # setwd( "C:/My Directory/NHANES/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Health%20and%20Nutrition%20Examination%20Survey/replicate%20human%20exposure%20to%20chemicals%20report.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Health%20and%20Nutrition%20Examination%20Survey/replicate%20human%20exposure%20to%20chemicals%20report.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
@@ -39,6 +39,7 @@
 # This R script will replicate the results on urinary BPA concentration (µg/l)
 # for the survey years 2007-2008
 # **********************************************************************
+
 
 library(foreign)         # required for reading SAS XPORT transport format files
 library(survey)          # required for the analysis of complex survey samples

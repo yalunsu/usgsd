@@ -8,7 +8,7 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/HRS/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Health%20and%20Retirement%20Study/replicate%202002%20regression.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Health%20and%20Retirement%20Study/replicate%202002%20regression.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
@@ -18,22 +18,13 @@
 # however, because those published regressions use a previous version of the RAND file, the statistics below do not match exactly.
 
 # to confirm that the methodology below is correct, analysts at RAND provided me with the same regression output using versions E through L
-# https://github.com/ajdamico/usgsd/blob/master/Health%20and%20Retirement%20Study/HRS%20stata%20output%20on%20current%20data%20from%20RAND.pdf?raw=true
+# https://github.com/ajdamico/asdfree/blob/master/Health%20and%20Retirement%20Study/HRS%20stata%20output%20on%20current%20data%20from%20RAND.pdf?raw=true
 # this r script will replicate the *final* regression output from that custom run of the health and retirement study (hrs) exactly
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -41,7 +32,7 @@
 # prior to running this analysis script, the longitudinal RAND-contributed HRS files must be imported into a SQLite database on the     #
 # local machine. running the import longitudinal RAND contributed files.R script to create the database automatically                   #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/Health%20and%20Retirement%20Study/import%20longitudinal%20RAND%20contributed%20files.R   #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/Health%20and%20Retirement%20Study/import%20longitudinal%20RAND%20contributed%20files.R   #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will place the four RAND HRS files into a database "RAND.db" in the "C:/My Directory/HRS/" folder (the working directory) #
 #########################################################################################################################################
@@ -112,7 +103,7 @@ svytotal( ~one , hh6 )
 
 
 # note that those statistics and standard errors precisely match the regression output shown on the final page of
-# https://github.com/ajdamico/usgsd/blob/master/Health%20and%20Retirement%20Study/HRS%20stata%20output%20on%20current%20data%20from%20RAND.pdf?raw=true
+# https://github.com/ajdamico/asdfree/blob/master/Health%20and%20Retirement%20Study/HRS%20stata%20output%20on%20current%20data%20from%20RAND.pdf?raw=true
 
 
 # delete the table 'temp' from the SQLite database
@@ -121,17 +112,3 @@ dbRemoveTable( db , 'temp' )
 # disconnect from the SQLite database
 dbDisconnect( db )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

@@ -9,27 +9,18 @@
 # library(downloader)
 # years.to.download <- c( 2003 , 2007 , 2012 )
 # setwd( "C:/My Directory/NSCH/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/National%20Survey%20of%20Children%27s%20Health/download%20and%20import.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/National%20Survey%20of%20Children%27s%20Health/download%20and%20import.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # emily rowe
 # eprowe@gmail.com
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ##########################################################################################
@@ -62,7 +53,7 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( 'sas7bdat' , "downloader" ) )
+# install.packages( c( 'sas7bdat' , "downloader" , "digest" ) )
 
 
 # no need to edit anything below this line #
@@ -77,10 +68,10 @@ library(sas7bdat)	# loads files ending in .sas7bdat directly into r as data.fram
 library(downloader)	# downloads and then runs the source() function on scripts from github
 
 
-# load the download.cache and related functions
+# load the download_cached and related functions
 # to prevent re-downloading of files once they've been downloaded.
 source_url( 
-	"https://raw.github.com/ajdamico/usgsd/master/Download%20Cache/download%20cache.R" , 
+	"https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , 
 	prompt = FALSE , 
 	echo = FALSE 
 )
@@ -113,7 +104,7 @@ for ( year in years.to.download ){
 	}
 		
 	# download the main file
-	download.cache( puf.fp , tf , mode = 'wb' )
+	download_cached( puf.fp , tf , mode = 'wb' )
 
 	# unzip the main file to the temporary directory
 	z <- unzip( tf , exdir = td )
@@ -141,7 +132,7 @@ for ( year in years.to.download ){
 	x$one <- 1
 
 	# download the multiply-imputed poverty data.frame
-	download.cache( mi.fp , tf , mode = 'wb' )
+	download_cached( mi.fp , tf , mode = 'wb' )
 
 	# unzip yet another file
 	z <- unzip( tf , exdir = td )
@@ -223,17 +214,3 @@ unlink( td , recursive = TRUE )
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste( "all done.  you should set" , getwd() , "read-only so you don't accidentally alter these files." ) )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

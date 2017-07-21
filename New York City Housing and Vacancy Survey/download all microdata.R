@@ -1,31 +1,22 @@
 # analyze survey data for free (http://asdfree.com) with the r language
 # new york city housing and vacancy survey
-# 2002-2011
+# 2002-2014
 
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/NYCHVS/" )
-# years.to.download <- c( 2002 , 2005 , 2008 , 2011 )
-# source_url( "https://raw.githubusercontent.com/ajdamico/usgsd/master/New%20York%20City%20Housing%20and%20Vacancy%20Survey/2002%20-%202011%20-%20download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
+# years.to.download <- c( 2002 , 2005 , 2008 , 2011 , 2014 )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/New%20York%20City%20Housing%20and%20Vacancy%20Survey/download%20all%20microdata.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 ###############################################################
@@ -50,7 +41,7 @@
 
 # uncomment this line to download all available data sets
 # uncomment this line by removing the `#` at the front
-# years.to.download <- c( 2002 , 2005 , 2008 , 2011 )
+# years.to.download <- c( 2002 , 2005 , 2008 , 2011 , 2014 )
 
 # uncomment to only download the most current available year
 # years.to.download <- 2011
@@ -82,6 +73,9 @@ nychvs.sas.cleanup <-
 		
 		# also, while we're removing stuff we don't like, throw out `TAB` characters
 		z <- gsub( "\t" , " " , SAS.uncomment( SAS.uncomment( y , "/*" , "*/" ) , "/*" , "*/" ) )
+		
+		# get rid of this crap
+		z <- gsub( "comma([0-9])\\.([0-9])" , "\\1.\\2" , z )
 
 		# re-write the furman SAS file into an uncommented SAS script
 		writeLines( z , cleaned.sas.input.script )
@@ -112,8 +106,16 @@ for ( year in years.to.download ){
 	lateyear <- ifelse( year == 2002 , 2005 , year )
 
 	# they started naming things differently in 2011
-	if ( year == 2011 ) filetypes <- c( 'occ' , 'vac' , 'pers' ) else filetypes <- c( 'occ' , 'vac' , 'per' , 'ni' )
-		
+	if ( year == 2014 ) {
+		filetypes <- c( 'occ' , 'vac' ) 
+	} else {
+		if( year == 2011 ) {
+			filetypes <- c( 'occ' , 'vac' , 'pers' ) 
+		} else {
+			filetypes <- c( 'occ' , 'vac' , 'per' , 'ni' )
+		}
+	}
+	
 	web <- ifelse( year > 2005 , '_web' , '' )
 	
 	prefix <- ifelse( year > 2008 , paste0( "/uf_" , latesubyear ) , paste0( "/lng" , latesubyear ) )
@@ -131,27 +133,59 @@ for ( year in years.to.download ){
 				"_" , 
 				filetype , 
 				ifelse( year > 2008 , '' , subyear ) , 
-				web , 
-				ifelse( year > 2008 , ".txt" , ".dat" )
+				ifelse( 
+					year == 2011 & filetype %in% c( 'occ' , 'pers' ) , 
+					'_rev' , 
+					web 
+				) , 
+				ifelse( 
+					year == 2011 & filetype == 'vac' , 
+					".txt" , 
+					".dat" 
+				)
 			)
 
 		# the `census.url` object now contains the complete filepath
 			
 		# construct the url of the SAS importation script #
 		
-		# massive thanx to http://furmancenter.org for providing these.
-		furman.sas.import.script <- 
-			paste( 
-				'https://raw.github.com/ajdamico/usgsd/master/New%20York%20City%20Housing%20and%20Vacancy%20Survey/NYU%20Furman%20Center%20SAS%20code/hvs' , 
-				subyear , 
-				filetype , 
-				'load.sas' , 
-				sep = "_" 
-			)
+		if( year < 2014 ){
+			# massive thanx to http://furmancenter.org for providing these.
+			furman.sas.import.script <- 
+				paste( 
+					'https://raw.githubusercontent.com/ajdamico/asdfree/master/New%20York%20City%20Housing%20and%20Vacancy%20Survey/NYU%20Furman%20Center%20SAS%20code/hvs' , 
+					subyear , 
+					filetype , 
+					'load.sas' , 
+					sep = "_" 
+				)
 
-		# save the sas import instructions to the local disk..
-		download( furman.sas.import.script , tf )
+			# save the sas import instructions to the local disk..
+			download( furman.sas.import.script , tf )
 			
+			beginline <- 1
+			
+		} else {
+
+			# set the import script begin lines.
+			if( filetype == 'occ' ) {
+				beginline <- 9 
+			} else if ( filetype == 'vac' ) {
+				beginline <- 412 
+			} else stop( "this filetype hasn't been implemented yet." )
+			
+			# download the new sas scripts provided.
+			download( 
+				paste0( 
+					"http://www.census.gov/housing/nychvs/data/" , 
+					year , 
+					"/sas_import_program.txt" 
+				) , 
+				tf 
+			)
+					
+		}
+
 		# ..and clean it up using the function defined above
 		cleaned.sas.script <- nychvs.sas.cleanup( tf )
 
@@ -159,7 +193,8 @@ for ( year in years.to.download ){
 		x <- 
 			read.SAScii( 
 				census.url ,
-				cleaned.sas.script
+				cleaned.sas.script ,
+				beginline = beginline
 			)
 
 		# set all column names to lowercase (since R is case-sensitive
@@ -170,7 +205,12 @@ for ( year in years.to.download ){
 		
 		# household weights need to be divided by one hundred thousand,
 		# person-weights need to be divided by ten for more recent years
-		if ( !( filetype %in% c( 'per' , 'pers' ) ) ) x$hhweight <- x$hhweight / 10^5 else if ( year > 2005 ) x$perwgt <- x$perwgt / 10
+		# but starting in 2014, this was no longer a problem.
+		if ( year < 2014 ){
+			if ( !( filetype %in% c( 'per' , 'pers' ) ) ) {
+				x$hhweight <- x$hhweight / 10^5 
+			} else if ( year > 2005 ) x$perwgt <- x$perwgt / 10
+		}
 		
 		# save the data frame `x` to whatever the current filetype is
 		assign( filetype , x )
@@ -198,17 +238,3 @@ for ( year in years.to.download ){
 
 # print a reminder: set the directory you just saved everything to as read-only!
 message( paste( "all done.  you should set" , getwd() , "read-only so you don't accidentally alter these files." ) )
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

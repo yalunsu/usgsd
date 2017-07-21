@@ -6,67 +6,30 @@
 # # # # # # # # # # # # # # # # #
 # # block of code to run this # #
 # # # # # # # # # # # # # # # # #
-# options( encoding = "windows-1252" )		# # only macintosh and *nix users need this line
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
 # library(downloader)
+# path.to.7z <- "7za"							# # only macintosh and *nix users need this line
 # setwd( "C:/My Directory/PISA/" )
-# years.to.download <- c( 2000 , 2003 , 2006 , 2009 , 2012 )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Program%20for%20International%20Student%20Assessment/download%20import%20and%20design.R" , prompt = FALSE , echo = TRUE )
+# years.to.download <- c( 2000 , 2003 , 2006 , 2009 , 2012 , 2015 )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Program%20for%20International%20Student%20Assessment/download%20import%20and%20design.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
 
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
-
 
 
 #####################################################################################
-# download all available program for international student assessment files from  #
+# download all available program for international student assessment files from    #
 # the organisation for economic co-operation and development's website, then import #
 # each file into a monet database, make corrections so the files are beeeeeeautiful #
-# create a multiply-imputed, monetdb-backed complex sample sqlsurvey design with r! #
+# create a multiply-imputed, monetdb-backed complex sample survey design with r!    #
 #####################################################################################
 
 
-# # # # # # # # # # # # # # #
-# warning: monetdb required #
-# # # # # # # # # # # # # # #
-
-
-# windows machines and also machines without access
-# to large amounts of ram will often benefit from
-# the following option, available as of MonetDB.R 0.9.2 --
-# remove the `#` in the line below to turn this option on.
-# options( "monetdb.sequential" = TRUE )		# # only windows users need this line
-# -- whenever connecting to a monetdb server,
-# this option triggers sequential server processing
-# in other words: single-threading.
-# if you would prefer to turn this on or off immediately
-# (that is, without a server connect or disconnect), use
-# turn on single-threading only
-# dbSendQuery( db , "set optimizer = 'sequential_pipe';" )
-# restore default behavior -- or just restart instead
-# dbSendQuery(db,"set optimizer = 'default_pipe';")
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-###################################################################################################################################
-# prior to running this analysis script, monetdb must be installed on the local machine.  follow each step outlined on this page: #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://github.com/ajdamico/usgsd/blob/master/MonetDB/monetdb%20installation%20instructions.R                                   #
-###################################################################################################################################
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 # # # # # # # # # # # # # # # #
@@ -81,28 +44,47 @@
 
 
 # remove the # in order to run this install.packages line only once
-# install.packages( c( "SAScii" , "descr" , "downloader" , "stringr" , "R.utils" ) )
+# install.packages( c( "MonetDBLite" , "haven" , "RCurl" , "survey" , "SAScii" , "descr" , "ff" , "downloader" , "digest" , "R.utils" , "stringr" , "mitools" ) )
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+#####################################################################################################################################################
+# macintosh and *nix users need 7za installed:  http://superuser.com/questions/548349/how-can-i-install-7zip-so-i-can-run-it-from-terminal-on-os-x  #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# path.to.7z <- "7za"														# # this is probably the correct line for macintosh and *nix
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# the line above sets the location of the 7-zip program on your local computer. uncomment it by removing the `#` and change the directory if ya did #
+#####################################################################################################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 library(SAScii) 		# load the SAScii package (imports ascii data with a SAS script)
 library(descr) 			# load the descr package (converts fixed-width files to delimited files)
 library(downloader)		# downloads and then runs the source() function on scripts from github
 library(stringr)		# load stringr package (manipulates character strings easily)
-library(sqlsurvey)		# load sqlsurvey package (analyzes large complex design surveys)
+library(survey) 		# load survey package (analyzes complex design surveys)
+library(MonetDBLite)
+library(DBI)			# load the DBI package (implements the R-database coding)
 library(R.utils)		# load the R.utils package (counts the number of lines in a file quickly)
+library(mitools) 		# load mitools package (analyzes multiply-imputed data)
+library(RCurl)			# load RCurl package (downloads https files)
+library(haven) 			# load the haven package (imports sas7bdat files faaaaaast)
 
 
 # load a compilation of functions that will be useful when executing actual analysis commands with this multiply-imputed, monetdb-backed behemoth
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Program%20for%20International%20Student%20Assessment/sqlsurvey%20functions.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Program%20for%20International%20Student%20Assessment/survey%20functions.R" , prompt = FALSE )
 
 # load a couple of functions that will ease the importation process
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Program%20for%20International%20Student%20Assessment/download%20and%20importation%20functions.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Program%20for%20International%20Student%20Assessment/download%20and%20importation%20functions.R" , prompt = FALSE )
 
 # load a few functions that will correct missing data in the raw files
-source_url( "https://raw.github.com/ajdamico/usgsd/master/Program%20for%20International%20Student%20Assessment/missing%20overwrite%20functions.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Program%20for%20International%20Student%20Assessment/missing%20overwrite%20functions.R" , prompt = FALSE )
 
 # load the read.SAScii.monetdb function (a variant of read.SAScii that creates a database directly)
-source_url( "https://raw.github.com/ajdamico/usgsd/master/MonetDB/read.SAScii.monetdb.R" , prompt = FALSE )
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/MonetDB/read.SAScii.monetdb.R" , prompt = FALSE )
+
+# load the download_cached function to store downloads when possible
+source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Download%20Cache/download%20cache.R" , prompt = FALSE , echo = FALSE )
 
 
 # set your PISA data directory
@@ -114,124 +96,23 @@ source_url( "https://raw.github.com/ajdamico/usgsd/master/MonetDB/read.SAScii.mo
 # uncomment this line by removing the `#` at the front..
 # setwd( "C:/My Directory/PISA/" )
 
-# # # are you on a non-windows system? # # #
-if ( .Platform$OS.type != 'windows' ) print( 'non-windows users: read this block' )
-# the cdc's ftp site has a few SAS importation
-# scripts in a non-standard format
-# if so, before running this whole download program,
-# you might need to run this line..
-# options( encoding="windows-1252" )
-# ..to turn on windows-style encoding.
-# # # end of non-windows system edits.
-
 
 # configure a monetdb database for the pisa on windows #
 
-# note: only run this command once.  this creates an executable (.bat) file
-# in the appropriate directory on your local disk.
-# when adding new files or adding a new year of data, this script does not need to be re-run.
+# name the database files in the "MonetDB" folder of the current working directory
+dbfolder <- paste0( getwd() , "/MonetDB" )
 
-# create a monetdb executable (.bat) file for the program for international student assessment
-batfile <-
-	monetdb.server.setup(
-					
-					# set the path to the directory where the initialization batch file and all data will be stored
-					database.directory = paste0( getwd() , "/MonetDB" ) ,
-					# must be empty or not exist
-
-					# find the main path to the monetdb installation program
-					monetdb.program.path = 
-						ifelse( 
-							.Platform$OS.type == "windows" , 
-							"C:/Program Files/MonetDB/MonetDB5" , 
-							"" 
-						) ,
-					# note: for windows, monetdb usually gets stored in the program files directory
-					# for other operating systems, it's usually part of the PATH and therefore can simply be left blank.
-					
-					# choose a database name
-					dbname = "pisa" ,
-					
-					# choose a database port
-					# this port should not conflict with other monetdb databases
-					# on your local computer.  two databases with the same port number
-					# cannot be accessed at the same time
-					dbport = 50007
-	)
-
-	
-# this next step is so very important.
-
-# store a line of code that will make it easy to open up the monetdb server in the future.
-# this should contain the same file path as the batfile created above,
-# you're best bet is to actually look at your local disk to find the full filepath of the executable (.bat) file.
-# if you ran this script without changes, the batfile will get stored in C:\My Directory\PISA\MonetDB\pisa.bat
-
-# here's the batfile location:
-batfile
-
-# note that since you only run the `monetdb.server.setup()` function the first time this script is run,
-# you will need to note the location of the batfile for future MonetDB analyses!
-
-# in future R sessions, you can create the batfile variable with a line like..
-# batfile <- "C:/My Directory/PISA/MonetDB/pisa.bat"		# # note for mac and *nix users: `pisa.bat` might be `pisa.sh` instead
-# obviously, without the `#` comment character
-
-# hold on to that line for future scripts.
-# you need to run this line *every time* you access
-# the program for international student assessment files with monetdb.
-# this is the monetdb server.
-
-# two other things you need: the database name and the database port.
-# store them now for later in this script, but hold on to them for other scripts as well
-dbname <- "pisa"
-dbport <- 50007
-
-# now the local windows machine contains a new executable program at "c:\my directory\pisa\monetdb\pisa.bat"		# # note for mac and *nix users: `pisa.bat` might be `pisa.sh` instead
+# open the connection to the monetdblite database
+db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 
 
-
-# it's recommended that after you've _created_ the monetdb server,
-# you create a block of code like the one below to _access_ the monetdb server
-
-
-#####################################################################
-# lines of code to hold on to for all other `pisa` monetdb analyses #
-
-# first: specify your batfile.  again, mine looks like this:
-# uncomment this line by removing the `#` at the front..
-# batfile <- "C:/My Directory/PISA/MonetDB/pisa.bat"		# # note for mac and *nix users: `pisa.bat` might be `pisa.sh` instead
-
-# second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
-
-# third: your five lines to make a monet database connection.
-# just like above, mine look like this:
-dbname <- "pisa"
-dbport <- 50007
-
-monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
-db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
-
-# disconnect from the current monet database
-dbDisconnect( db )
-
-# and close it using the `pid`
-monetdb.server.stop( pid )
-
-# end of lines of code to hold on to for all other `pisa` monetdb analyses #
-############################################################################
-
-
-
-# choose which pisa data sets to download: 2000, 2003, 2006, 2009, or 2012
+# choose which pisa data sets to download: 2000, 2003, 2006, 2009, 2012, 2015
 # if you have a big hard drive, hey why not download them all?
 
 # uncomment this line to download all available data sets
 # uncomment this line by removing the `#` at the front
-# years.to.download <- c( 2000 , 2003 , 2006 , 2009 , 2012 )
+# years.to.download <- c( 2000 , 2003 , 2006 , 2009 , 2012 , 2015 )
 
 # # # # # # # # # # # # # #
 # other download examples #
@@ -255,39 +136,106 @@ monetdb.server.stop( pid )
 # for whichever year(s) you need #
 ##################################
 
+# this script's download files should be incorporated in download_cached's hash list
+options( "download_cached.hashwarn" = TRUE )
+# warn the user if the hash does not yet exist
+
 
 # set the prefix of all websites for downloading
-http.pre <- "http://pisa"
-# set the middle portion of the website used for downloading
-http.mid <- ".acer.edu.au/downloads/"
+http.pre <- "https://www.oecd.org/pisa/pisaproducts/"
 
+
+# add a temporary file and folder
+tf <- tempfile() ; td <- tempdir()
 
 
 # check if 2012 is one of the years slated for download and import
-if ( 2012 %in% years.to.download ){
-
-	# launch the monetdb server..
-	pid <- monetdb.server.start( batfile )
-	# ..wait for it to load, then immediately connect.
-	db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
+if ( 2015 %in% years.to.download ){
 
 	# figure out which table names to loop through for downloading, importing, survey designing
-	files.to.import <- c( "INT_STU12_DEC03", "INT_SCQ12_DEC03" ,  "INT_PAQ12_DEC03" , "INT_COG12_DEC03" , "INT_COG12_S_DEC03" )
+	files.to.import <- c( "CMB_STU_QQQ" , "CMB_SCH_QQQ" , "CMB_TCH_QQQ" , "CMB_STU_COG" , "CMB_STU%20_QTM" , "CM2_STU_QQQ_COG_QTM_SCH_TCH" )
 	
 	# loop through them all
 	for ( curFile in files.to.import ){
 
 		# construct the full path to the file..
-		fp <- paste0( http.pre , 2012 , http.mid , curFile , ".zip" )
+		fp <- paste0( "http://vs-web-fs-1.oecd.org/pisa/PUF_SAS_COMBINED_" , curFile , ".zip" )
+	
+		# download the file to the local disk
+		download_cached( fp , tf , mode = 'wb' )
+		
+		# extract the file, platform-specific
+		if ( .Platform$OS.type == 'windows' ){
+
+			z <- unzip( tf , exdir = td )
+
+		} else {
+
+			# build the string to send to the terminal on non-windows systems
+			dos.command <- paste0( '"' , path.to.7z , '" x ' , tf , ' -o"' , td , '"' )
+
+			system( dos.command )
+
+			z <- list.files( td , full.names = TRUE )
+
+		}
+
+		# loop through all sas7bdat files and load them into monetdb
+		for( this_sas in grep( "\\.sas7bdat$" , z , value = TRUE ) ){
+		
+			this_df <- data.frame( read_sas( this_sas ) )
+			
+			names( this_df ) <- tolower( names( this_df ) )
+			
+			dbWriteTable( db , gsub( "(.*)\\.sas7bdat$" , "\\1" , basename( tolower( this_sas ) ) ) , this_df )
+			
+			rm( this_df ) ; gc()
+			
+		}
+
+		file.remove( tf , z )
+
+	}
+	
+	
+	# use the table (already imported into monetdb) to spawn ten different tables (one for each plausible [imputed] value)
+	# then construct a multiply-imputed, monetdb-backed, replicated-weighted complex-sample survey-design object-object.
+	construct.pisa.survey.designs(
+		db , 
+		year = 2015 ,
+		table.name = 'cy6_ms_cmb_stu_qqq' ,
+		pv.vars = c( 'math' , 'read' , 'scie' , 'scep' , 'sced' , 'scid' , 'skco' , 'skpe' , 'ssph' , 'ssli' , 'sses' ) ,
+		implicates = 10
+	)
+	
+	# clear up the temporary directory
+	file.remove( z )
+
+}
+
+
+# check if 2012 is one of the years slated for download and import
+if ( 2012 %in% years.to.download ){
+
+	# figure out which table names to loop through for downloading, importing, survey designing
+	files.to.import <- c( "INT_STU12_DEC03", "INT_SCQ12_DEC03" ,  "INT_PAQ12_DEC03" , "INT_COG12_DEC03" , "INT_COG12_S_DEC03" )
+	
+	sas.file.names <- paste0( "PISA" , 2012 , "_SAS_" , c( "student" , "school" , "parent" , "cognitive_item" , "scored_cognitive_item" ) )
+	
+	# loop through them all
+	for ( curFile in files.to.import ){
+
+		# construct the full path to the file..
+		fp <- paste0( http.pre , curFile , ".zip" )
 	
 		# ..as well as the path to the sas importation script
-		sri <- paste0( http.pre , 2012 , http.mid , gsub( "DEC03" , "SAS" , curFile ) , ".sas" )
+		sri <- paste0( http.pre , sas.file.names[ which( curFile == files.to.import ) ] , ".sas" )
 
 		# download the file specified at the address constructed above,
 		# then immediately import it into the monetdb server
 		read.SAScii.monetdb ( 
 			fp ,
-			sas_ri = remove.fakecnt.lines( find.chars( add.decimals( sri , precise = TRUE ) ) ) , 
+			sas_ri = remove.fakecnt.lines( find.chars( add.decimals( tcri( sri ) , precise = TRUE ) ) ) , 
 			zipped = TRUE ,
 			tl = TRUE ,
 			tablename = curFile ,
@@ -297,7 +245,7 @@ if ( 2012 %in% years.to.download ){
 	
 		# missing recodes #
 	
-		spss.script <- paste0( http.pre , 2012 , http.mid , gsub( "DEC03" , "SPSS" , curFile ) , ".sps" )
+		spss.script <- paste0( http.pre , gsub( "SAS" , "SPSS" , sas.file.names[ which( curFile == files.to.import ) ] ) , ".txt" )
 	
 		spss.based.missing.blankouts( db , curFile , spss.script )
 	
@@ -308,18 +256,12 @@ if ( 2012 %in% years.to.download ){
 	
 	# use the table (already imported into monetdb) to spawn five different tables (one for each plausible [imputed] value)
 	# then construct a multiply-imputed, monetdb-backed, replicated-weighted complex-sample survey-design object-object.
-	construct.pisa.sqlsurvey.designs(
-		monet.url , 
+	construct.pisa.survey.designs(
+		db , 
 		year = 2012 ,
 		table.name = 'int_stu12_dec03' ,
-		pv.vars = c( 'math' , 'macc' , 'macq' , 'macs' , 'macu' , 'mape' , 'mapf' , 'mapi' , 'read' , 'scie' ) ,
-		sas_ri = remove.fakecnt.lines( find.chars( add.decimals( "http://pisa2012.acer.edu.au/downloads/INT_STU12_SAS.sas" , precise = TRUE ) ) )
+		pv.vars = c( 'math' , 'macc' , 'macq' , 'macs' , 'macu' , 'mape' , 'mapf' , 'mapi' , 'read' , 'scie' )
 	)
-	
-	# disconnect from the monetdb server..
-	dbDisconnect( db )
-	# ..and shut it down.
-	monetdb.server.stop( pid )
 
 }
 
@@ -327,28 +269,25 @@ if ( 2012 %in% years.to.download ){
 # check if 2009 is one of the years slated for download and import
 if ( 2009 %in% years.to.download ){
 
-	# launch the monetdb server..
-	pid <- monetdb.server.start( batfile )
-	# ..wait for it to load, then immediately connect.
-	db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
 	# figure out which table names to loop through for downloading, importing, survey designing
 	files.to.import <- c( "INT_STQ09_DEC11" , "INT_SCQ09_Dec11" , "INT_PAR09_DEC11" , "INT_COG09_TD_DEC11" , "INT_COG09_S_DEC11" )
+	
+	sas.file.names <- paste0( "PISA" , 2009 , "_SAS_" , c( "student" , "school" , "parent" , "cognitive_item" , "scored_cognitive_item" ) )
 	
 	# loop through them all
 	for ( curFile in files.to.import ){
 
 		# construct the full path to the file..
-		fp <- paste0( http.pre , 2009 , http.mid , curFile , ".zip" )
+		fp <- paste0( http.pre , curFile , ".zip" )
 	
 		# ..as well as the path to the sas importation script
-		sri <- paste0( http.pre , 2009 , http.mid , gsub( "_D(ec|EC)" , "_SAS_DEC" , curFile ) , ".sas" )
+		sri <- paste0( http.pre , sas.file.names[ which( curFile == files.to.import ) ] , ".sas" )
 
 		# download the file specified at the address constructed above,
 		# then immediately import it into the monetdb server
 		read.SAScii.monetdb ( 
 			fp ,
-			sas_ri = find.chars( add.decimals( remove.tabs( sri ) ) ) , 
+			sas_ri = find.chars( add.decimals( remove.tabs( tcri( sri ) ) ) ) , 
 			zipped = TRUE ,
 			tl = TRUE ,
 			tablename = curFile ,
@@ -399,47 +338,38 @@ if ( 2009 %in% years.to.download ){
 	
 	# use the table (already imported into monetdb) to spawn five different tables (one for each plausible [imputed] value)
 	# then construct a multiply-imputed, monetdb-backed, replicated-weighted complex-sample survey-design object-object.
-	construct.pisa.sqlsurvey.designs(
-		monet.url , 
+	construct.pisa.survey.designs(
+		db , 
 		year = 2009 ,
 		table.name = 'int_stq09_dec11' ,
-		pv.vars = c( 'math' , 'read' , 'scie' , 'read1' , 'read2' , 'read3' , 'read4' , 'read5' ) ,
-		sas_ri = find.chars( add.decimals( remove.tabs( "http://pisa2009.acer.edu.au/downloads/INT_STQ09_SAS_DEC11.sas" ) ) )
+		pv.vars = c( 'math' , 'read' , 'scie' , 'read1' , 'read2' , 'read3' , 'read4' , 'read5' )
 	)
 	
-	# disconnect from the monetdb server..
-	dbDisconnect( db )
-	# ..and shut it down.
-	monetdb.server.stop( pid )
-
 }
 
 
 # check if 2006 is one of the years slated for download and import
 if ( 2006 %in% years.to.download ){
 
-	# launch the monetdb server..
-	pid <- monetdb.server.start( batfile )
-	# ..wait for it to load, then immediately connect.
-	db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
 	# figure out which table names to loop through for downloading, importing, survey designing
 	files.to.import <- c( "INT_Stu06_Dec07" , "INT_Sch06_Dec07" , "INT_Par06_Dec07" , "INT_Cogn06_T_Dec07" , "INT_Cogn06_S_Dec07" )
 
+	sas.file.names <- paste0( "PISA" , 2006 , "_SAS_" , c( "student" , "school" , "parent" , "cognitive_item" , "scored_cognitive_item" ) )
+	
 	# loop through them all
 	for ( curFile in files.to.import ){
 
 		# construct the full path to the file..
-		fp <- paste0( http.pre , 2006 , http.mid , curFile , ".zip" )
+		fp <- paste0( http.pre , curFile , ".zip" )
 	
 		# ..as well as the path to the sas importation script
-		sri <- paste0( http.pre , 2006 , http.mid , gsub( "_D" , "_SAS_D" , curFile ) , ".sas" )
+		sri <- paste0( http.pre , sas.file.names[ which( curFile == files.to.import ) ] , ".sas" )
 	
 		# download the file specified at the address constructed above,
 		# then immediately import it into the monetdb server
 		read.SAScii.monetdb ( 
 			fp ,
-			sas_ri = find.chars( add.decimals( remove.tabs( sri ) ) ) , 
+			sas_ri = find.chars( add.decimals( remove.tabs( tcri( sri ) ) ) ) , 
 			zipped = TRUE ,
 			tl = TRUE ,
 			tablename = curFile ,
@@ -471,32 +401,23 @@ if ( 2006 %in% years.to.download ){
 	
 	# use the table (already imported into monetdb) to spawn five different tables (one for each plausible [imputed] value)
 	# then construct a multiply-imputed, monetdb-backed, replicated-weighted complex-sample survey-design object-object.
-	construct.pisa.sqlsurvey.designs(
-		monet.url , 
+	construct.pisa.survey.designs(
+		db , 
 		year = 2006 ,
 		table.name = 'int_stu06_dec07' ,
-		pv.vars = c( 'math' , 'read' , 'scie' , 'intr' , 'supp' , 'eps' , 'isi' , 'use' ) ,
-		sas_ri = find.chars( add.decimals( remove.tabs( "http://pisa2006.acer.edu.au/downloads/INT_Stu06_SAS_Dec07.sas" ) ) )
+		pv.vars = c( 'math' , 'read' , 'scie' , 'intr' , 'supp' , 'eps' , 'isi' , 'use' )
 	)
 	
-	# disconnect from the monetdb server..
-	dbDisconnect( db )
-	# ..and shut it down.
-	monetdb.server.stop( pid )
-
 }
 
   
 # check if 2003 is one of the years slated for download and import
 if ( 2003 %in% years.to.download ){
 
-	# launch the monetdb server..
-	pid <- monetdb.server.start( batfile )
-	# ..wait for it to load, then immediately connect.
-	db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
 	# figure out which table names to loop through for downloading, importing, survey designing
 	files.to.import <- c( "INT_cogn_2003" , "INT_stui_2003_v2" , "INT_schi_2003" )
+	
+	sas.file.names <- paste0( "PISA" , 2003 , "_SAS_" , c( "cognitive_item" , "student" , "school" ) )
 	
 	# loop through them all
 	for ( curFile in files.to.import ){
@@ -504,12 +425,11 @@ if ( 2003 %in% years.to.download ){
 		zipped <- TRUE
 	
 		# construct the full path to the file..
-		fp <- paste0( http.pre , 2003 , http.mid , curFile , ".zip" )
+		fp <- paste0( http.pre , curFile , ".zip" )
 	
 		# ..as well as the path to the sas importation script
-		sri <- paste0( http.pre , 2003 , http.mid , gsub( "INT" , "Read" , curFile ) , ".sas" )
-		sri <- gsub( "i_2003", "I_2003", sri )
-	
+		sri <- paste0( http.pre , sas.file.names[ which( curFile == files.to.import ) ] , ".sas" )
+		
 		# get rid of some goofy `n` values in this ascii data
 		if ( curFile == "INT_cogn_2003" ){
 		
@@ -573,18 +493,12 @@ if ( 2003 %in% years.to.download ){
 	
 	# use the table (already imported into monetdb) to spawn five different tables (one for each plausible [imputed] value)
 	# then construct a multiply-imputed, monetdb-backed, replicated-weighted complex-sample survey-design object-object.
-	construct.pisa.sqlsurvey.designs(
-		monet.url , 
+	construct.pisa.survey.designs(
+		db , 
 		year = 2003 ,
 		table.name = 'int_stui_2003_v2' ,
-		pv.vars = c( 'math' , 'math1' , 'math2' , 'math3' , 'math4' , 'read' , 'scie' , 'prob' ) ,
-		sas_ri = find.chars( add.decimals( remove.tabs( "http://pisa2003.acer.edu.au/downloads/Read_stuI_2003_v2.sas" ) ) )
+		pv.vars = c( 'math' , 'math1' , 'math2' , 'math3' , 'math4' , 'read' , 'scie' , 'prob' )
 	)
-	
-	# disconnect from the monetdb server..
-	dbDisconnect( db )
-	# ..and shut it down.
-	monetdb.server.stop( pid )
 
 }
 
@@ -592,22 +506,19 @@ if ( 2003 %in% years.to.download ){
 # check if 2000 is one of the years slated for download and import
 if ( 2000 %in% years.to.download ){
 
-	# launch the monetdb server..
-	pid <- monetdb.server.start( batfile )
-	# ..wait for it to load, then immediately connect.
-	db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
 	# figure out which table names to loop through for downloading, importing, survey designing
-	files.to.import <- c( "intcogn_v3" , "intscho" , "intstud_math" , "intstud_read" , "intstud_scie" )
+	files.to.import <- c( "intcogn_v4" , "intscho" , "intstud_math" , "intstud_read" , "intstud_scie" )
 
+	sas.file.names <- paste0( "PISA" , 2000 , "_SAS_" , c( "cognitive_item" , "school_questionnaire" , "student_mathematics" , "student_reading" , "student_science" ) )
+	
 	# loop through them all
 	for ( curFile in files.to.import ){
 
 		# construct the full path to the file..
-		fp <- paste0( http.pre , 2000 , http.mid , curFile , ".zip" )
+		fp <- paste0( http.pre , curFile , ".zip" )
 	
 		# ..as well as the path to the sas importation script
-		sri <- paste0( http.pre , 2000 , http.mid , curFile , ".sas" )
+		sri <- paste0( http.pre , sas.file.names[ which( curFile == files.to.import ) ] , ".sas" )
 	
 		# well aren't you a pain in the ass as usual, mathematics?
 		if ( curFile == "intstud_math" ) {
@@ -633,7 +544,7 @@ if ( 2000 %in% years.to.download ){
 			write.csv( ism , tf , row.names = FALSE )
 			
 			# read that csv file directly into monetdb
-			monet.read.csv( db , tf , curFile , nrow.check = 20000 , na.strings = "NA" )
+			dbWriteTable( db , curFile , tf , nrow.check = 20000 , na.strings = "NA" , lower.case.names = TRUE )
 
 			# remove the `ism` object from working memory
 			rm( ism )
@@ -714,38 +625,30 @@ if ( 2000 %in% years.to.download ){
 	
 	# use the table (already imported into monetdb) to spawn five different tables (one for each plausible [imputed] value)
 	# then construct a multiply-imputed, monetdb-backed, replicated-weighted complex-sample survey-design object-object.
-	construct.pisa.sqlsurvey.designs(
-		monet.url , 
+	construct.pisa.survey.designs(
+		db , 
 		year = 2000 ,
 		table.name = 'intstud_math' ,
-		pv.vars = c( 'math' , 'math1' , 'math2' , 'read' , 'read1' , 'read2' , 'read3' ) ,
-		sas_ri = find.chars( add.decimals( add.sdt( remove.tabs( stupid.sas( "http://pisa2000.acer.edu.au/downloads/intstud_math.sas" ) ) ) ) )
+		pv.vars = c( 'math' , 'math1' , 'math2' , 'read' , 'read1' , 'read2' , 'read3' )
 	)
 
 	# use the table (already imported into monetdb) to spawn five different tables (one for each plausible [imputed] value)
 	# then construct a multiply-imputed, monetdb-backed, replicated-weighted complex-sample survey-design object-object.	
-	construct.pisa.sqlsurvey.designs(
-		monet.url , 
+	construct.pisa.survey.designs(
+		db , 
 		year = 2000 ,
 		table.name = 'intstud_read' ,
-		pv.vars = c( 'read' , 'read1' , 'read2' , 'read3' ) ,
-		sas_ri = sas.is.quite.evil( find.chars( add.decimals( add.sdt( remove.tabs( "http://pisa2000.acer.edu.au/downloads/intstud_read.sas" ) ) ) ) )
+		pv.vars = c( 'read' , 'read1' , 'read2' , 'read3' )
 	)
 	
 	# use the table (already imported into monetdb) to spawn five different tables (one for each plausible [imputed] value)
 	# then construct a multiply-imputed, monetdb-backed, replicated-weighted complex-sample survey-design object-object.
-	construct.pisa.sqlsurvey.designs(
-		monet.url , 
+	construct.pisa.survey.designs(
+		db , 
 		year = 2000 ,
 		table.name = 'intstud_scie' ,
-		pv.vars = c( 'read' , 'read1' , 'read2' , 'read3' , 'scie' ) ,
-		sas_ri = sas.is.quite.evil( find.chars( add.decimals( add.sdt( remove.tabs( "http://pisa2000.acer.edu.au/downloads/intstud_scie.sas" ) ) ) ) )
+		pv.vars = c( 'read' , 'read1' , 'read2' , 'read3' , 'scie' )
 	)
-
-	# disconnect from the monetdb server..
-	dbDisconnect( db )
-	# ..and shut it down.
-	monetdb.server.stop( pid )
 	
 }
 
@@ -754,64 +657,9 @@ if ( 2000 %in% years.to.download ){
 # for each multiply-imputed, monet database-backed complex sample survey design object
 
 
-
-# once complete, this script does not need to be run again.
-# instead, use one of the program for international student assessment
-# analysis scripts, which utilize these newly-created survey objects
-
-
-# wait ten seconds, just to make sure any previous servers closed
-# and you don't get a gdk-lock error from opening two-at-once
-Sys.sleep( 10 )
-
-#####################################################################
-# lines of code to hold on to for all other `pisa` monetdb analyses #
-
-# first: specify your batfile.  again, mine looks like this:
-# uncomment this line by removing the `#` at the front..
-# batfile <- "C:/My Directory/PISA/MonetDB/pisa.bat"		# # note for mac and *nix users: `pisa.bat` might be `pisa.sh` instead
-
-# second: run the MonetDB server
-pid <- monetdb.server.start( batfile )
-
-# third: your five lines to make a monet database connection.
-# just like above, mine look like this:
-dbname <- "pisa"
-dbport <- 50007
-
-monet.url <- paste0( "monetdb://localhost:" , dbport , "/" , dbname )
-db <- dbConnect( MonetDB.R() , monet.url , wait = TRUE )
-
-
-# # # # run your analysis commands # # # #
-
+# set every table you've just created as read-only inside the database.
+for ( this_table in dbListTables( db ) ) dbSendQuery( db , paste( "ALTER TABLE" , this_table , "SET READ ONLY" ) )
 
 # disconnect from the current monet database
-dbDisconnect( db )
+dbDisconnect( db , shutdown = TRUE )
 
-# and close it using the `pid`
-monetdb.server.stop( pid )
-
-# end of lines of code to hold on to for all other `pisa` monetdb analyses #
-############################################################################
-
-
-# unlike most post-importation scripts, the monetdb directory cannot be set to read-only #
-message( paste( "all done.  DO NOT set" , getwd() , "read-only or subsequent scripts will not work." ) )
-
-message( "got that? monetdb directories should not be set read-only." )
-
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico

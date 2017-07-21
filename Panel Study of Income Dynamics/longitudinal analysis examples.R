@@ -7,7 +7,7 @@
 # # # # # # # # # # # # # # # # #
 # library(downloader)
 # setwd( "C:/My Directory/PSID/" )
-# source_url( "https://raw.github.com/ajdamico/usgsd/master/Panel%20Study%20of%20Income%20Dynamics/longitudinal%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
+# source_url( "https://raw.githubusercontent.com/ajdamico/asdfree/master/Panel%20Study%20of%20Income%20Dynamics/longitudinal%20analysis%20examples.R" , prompt = FALSE , echo = TRUE )
 # # # # # # # # # # # # # # #
 # # end of auto-run block # #
 # # # # # # # # # # # # # # #
@@ -19,24 +19,15 @@
 # in the actual values for some of the records of those remaining 1,633, so your answers still will not match.
 # in short: you'll have to trust that my modern version of their tutorials is accurate.
 # tutorial #3 - http://psidonline.isr.umich.edu/Guide/tutorials/tutorial3/balanced_panel.pdf
-# psid e-mail - https://raw.github.com/ajdamico/usgsd/master/Panel%20Study%20of%20Income%20Dynamics/different%20record%20counts%20in%20tutorial%203.pdf?raw=TRUE
+# psid e-mail - https://raw.githubusercontent.com/ajdamico/asdfree/master/Panel%20Study%20of%20Income%20Dynamics/different%20record%20counts%20in%20tutorial%203.pdf?raw=TRUE
 # hope that works for you. if it doesn't, e-mail psidhelp@umich.edu and ask for their tutorials to be updated. ;)
 # and yes, tutorial #1 is more current, but it doesn't use the panel.  using the panel is the whole point of this survey.
 
 
-# if you have never used the r language before,
-# watch this two minute video i made outlining
-# how to run this script from start to finish
-# http://www.screenr.com/Zpd8
+# contact me directly for free help or for paid consulting work
 
 # anthony joseph damico
 # ajdamico@gmail.com
-
-# if you use this script for a project, please send me a note
-# it's always nice to hear about how people are using this stuff
-
-# for further reading on cross-package comparisons, see:
-# http://journal.r-project.org/archive/2009-2/RJournal_2009-2_Damico.pdf
 
 
 
@@ -44,7 +35,7 @@
 #####################################################################################################################
 # prior to running this analysis script, the umich individual cross-year file must be downloaded to your local disk #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# https://raw.github.com/ajdamico/usgsd/master/Panel%20Study%20of%20Income%20Dynamics/download%20all%20microdata.R  #
+# https://raw.githubusercontent.com/ajdamico/asdfree/master/Panel%20Study%20of%20Income%20Dynamics/download%20all%20microdata.R  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # that script will place all necessary psid files whever you specified, probably the "C:/My Directory/PSID/" folder #
 #####################################################################################################################
@@ -192,7 +183,7 @@ y <-
 # start of cheating detour #
 
 # # only use the commands inside this cheating detour if you're interested in getting closer to the 1,633 records described in
-# # https://raw.github.com/ajdamico/usgsd/master/Panel%20Study%20of%20Income%20Dynamics/different%20record%20counts%20in%20tutorial%203.pdf?raw=TRUE
+# # https://raw.githubusercontent.com/ajdamico/asdfree/master/Panel%20Study%20of%20Income%20Dynamics/different%20record%20counts%20in%20tutorial%203.pdf?raw=TRUE
 
 # # pull the excel file
 
@@ -483,17 +474,3 @@ barplot(
 	ylim = c( 0 , 1 )
 )
 
-
-# for more details on how to work with data in r
-# check out my two minute tutorial video site
-# http://www.twotorials.com/
-
-# dear everyone: please contribute your script.
-# have you written syntax that precisely matches an official publication?
-message( "if others might benefit, send your code to ajdamico@gmail.com" )
-# http://asdfree.com needs more user contributions
-
-# let's play the which one of these things doesn't belong game:
-# "only you can prevent forest fires" -smokey bear
-# "take a bite out of crime" -mcgruff the crime pooch
-# "plz gimme your statistical programming" -anthony damico
